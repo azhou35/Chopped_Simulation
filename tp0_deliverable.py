@@ -1,6 +1,6 @@
 #Term Project Try 2
 #My code all deleted i AM SO SAD
-
+#tutorial: https://realpython.com/python-web-scraping-practical-introduction/
 from urllib.request import urlopen
 #Step 0.5: Learn Basic Url opening
 url = "http://olympus.realpython.org/profiles/aphrodite"
@@ -32,6 +32,7 @@ html = page.read().decode("utf-8")
 soup = BeautifulSoup(html, "html.parser")
 #print(soup.get_text())
 print(f"This is title string {soup.title.string}")
+
 listOfNames = list()
 for link in soup.find_all("a"):
     try:
@@ -39,7 +40,7 @@ for link in soup.find_all("a"):
         listOfNames.append(link_url)
     except:
         pass
-print(f"This is list of names {listOfNames}")
+#print(f"This is list of names {listOfNames}")
 
 url2 = "http://olympus.realpython.org/profiles/dionysus"
 page2 = urlopen(url2)
@@ -49,21 +50,21 @@ soup2 = BeautifulSoup(html2, "html.parser")
 noLines = soup2.get_text().replace("\n", " ")
 #print(noLines)
 image1, image2 = soup2.find_all("img")
-print(f"This is title {soup2.title}")
+#print(f"This is title {soup2.title}")
 
 #STEP 1.5 LOLMAO
 import re
 test_string = "sad bc term project is making me sad" 
 filter = re.findall("sad", test_string) 
 filter2 = re.findall("[a-c]", test_string)
-print(filter)
-print(filter2)
+#print(filter)
+#print(filter2)
 
 #Step 2 Use Selenium
 import time
 from selenium import webdriver
 #input path name to where driver is
-driver = webdriver.Chrome('/Users/az/Documents/GitHub/Zhou_Annie_112_TP/chromedriver')  # Optional argument, if not specified will search path.
+driver = webdriver.Chrome('/Users/az/Documents/GitHub/Chopped_Simulation/chromedriver')  # Optional argument, if not specified will search path.
 """
 driver.get('http://www.google.com/');
 time.sleep(5) # Let the user actually see something!
@@ -85,6 +86,7 @@ driver.get("https://www.nintendo.com/")
 print(driver.page_source)
 driver.quit()
 """
+#https://towardsdatascience.com/using-python-and-selenium-to-automate-filling-forms-and-mouse-clicks-f87c74ed5c0f
 
 #EXAMPLE: logging into a simple log in page Y Combinator
 """
@@ -101,10 +103,10 @@ try:
 except NoSuchElementException:
     print('Incorrect login/password')
 """
-#https://towardsdatascience.com/using-python-and-selenium-to-automate-filling-forms-and-mouse-clicks-f87c74ed5c0f
 
 
 #Example: Using Selenium to Fill out arbitrary google form
+"""
 from selenium.common.exceptions import NoSuchElementException 
 
 driver.get('https://forms.gle/7hmyNe5eYrDKuYub7')
@@ -125,3 +127,24 @@ clickturkey = driver.find_element_by_xpath(question2turkey).click()
 clickmashed = driver.find_element_by_xpath(question2mashed).click()
 clickbrussel = driver.find_element_by_xpath(question3brussels).click()
 clicksubmit = driver.find_element_by_xpath(submitbutton).click()
+"""
+
+#SOURCE: https://www.geeksforgeeks.org/python-automate-google-search-using-selenium/?ref=rp
+#trying to automate google search
+# Taking input from user 
+
+search_string = input("Input what you want to search for:") 
+  
+# change the string into search url.
+search_string = search_string.replace(' ', '+')  
+    
+for i in range(1): 
+    matched_elements = driver.get("https://www.google.com/search?q=" +
+                                     search_string + "&start=" + str(i)) 
+
+
+# get started on gaming part 
+#incorporate web scraping to find recipes 
+#building up a cooking competition
+#game ai 
+#some split screen
