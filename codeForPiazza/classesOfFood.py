@@ -32,27 +32,25 @@ def setUpObjects():
 def isRecipe(inventory, method, recipe):
     #recipe is a 2D list
     neededIngredients = recipe[0]
-    print(recipe[0])
     #check to see if every necessary ingredient is in your current inventory of ingredients
     for food in neededIngredients:
-        print(f'i need this ingredient: {food}')
         if food not in inventory:
             return False
     #you exit for loop only if you have every necessary ingredient
+
     #now check if the appliance you're at is in the recommended appliance
-    if method in recipe[1]:
-        return True        
-    else:
-        return False 
+    
+    if method[0] in recipe[1]:
+            return True        
+    return False 
 #"wrapper" function that goes through every recipe in the three cookbooks and checks if the ingredients fit in any of the 
 #recipes 
 #returns the new dish item that it creates 
 def validCombination(basket, methods, firstLevelCookbook, secondLevelCookbook, thirdLevelCookbook):
     for cookbook in [firstLevelCookbook, secondLevelCookbook, thirdLevelCookbook]:
         for dish, recipe in cookbook.items():
-            if dish == 'mashedPotato':
-                if isRecipe(basket, methods, recipe):
-                    return dish #return the dish that it successfully creates 
+            if isRecipe(basket, methods, recipe):
+                return dish #return the dish that it successfully creates 
     return None 
     
 def setUpCookbooks():
@@ -109,6 +107,7 @@ def ingredientList(firstLevelCookbook):
         for ingred in recipe[0]:
             ingredients.add(ingred)
     return ingredients
+
 
 
 #should I use recursion? 
@@ -178,10 +177,6 @@ class Staples(object):
         for ingred in listOfOtherIngredients:
             self.totalIngredients.append(ingred.name) #access their name attribute, should be a list of strings
         #call helper function to see if this combination of ingredients can create anything
-        #self.totalIngredients = [self.name]
-        #self.totalIngredients += listOfOtherIngredients 
-        print(f'this is total ingredients: {self.totalIngredients}')
-        print(method)
         combination = validCombination(self.totalIngredients, method, Staples.cookbooks[0], Staples.cookbooks[1], Staples.cookbooks[2])
         #combination is either none or the dish that it creates
         if combination != None:
@@ -190,10 +185,9 @@ class Staples(object):
             uniqueCombo = ''
             for ingred in self.totalIngredients: 
                 if self.totalIngredients.index(ingred)==0: #if the ingredient is the first in list 
-                    uniqueCombo = uniqueCombo + ingred
+                    uniqueCombo += ingred
                 else: 
-                    uniqueCombo = f'{uniqueCombo} + {ingred}'
-            return uniqueCombo
+                    uniqueCombo += f' + {ingred}'
     #code taken from https://www.cs.cmu.edu/~112/notes/notes-oop-part3.html
     def __repr__(self):
         return f'{self.name}'
@@ -207,6 +201,7 @@ class Appliance(object):
         self.path = '/Users/az/Documents/GitHub/Chopped_Simulation/images' + f'/{self.name}'
         self.cellsInLength = 5
         self.cellsInWidth = 1 
+
 class gameAI(Player):
     def __init__(self, row, col, basket, cookbooks):
         super().__init__(row, col, basket, cookbooks) #super method to inherit methods and properties from parents
@@ -219,13 +214,10 @@ class gameAI(Player):
         randomCookbook = random.randint(0, 3)
         #call recursive helper function to get all possible recipes from cookbooks
         possibilities = itemInRecipe(self.basket, self.cookbooks, combinations=[])
-        try:
-            self.finalDish = random.choice(possibilities[randomCookbook])
-        except:
-            self.finalDish = random.choice(possibilities[randomCookbook])
-        print(f'THIS IS FINAL DISH {self.finalDish}')
+        self.finalDish = random.randchoice(possibilities[randomCookbook])
+
     #function to create list of appliances and ingredients game Ai needs to use in order to create final dish
-    def generateApplianceAndGroceriesList(self):
+    def generateApplianceAndGroceriesList():
         #find recipe
         total = len(self.cookbooks)
         #loop thru list backwards

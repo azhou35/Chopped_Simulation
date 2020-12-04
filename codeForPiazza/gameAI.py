@@ -46,23 +46,12 @@ class MyApp(App):
 
         else:
             return MyApp.generatePath(row0 + xDir, col0 + yDir, row1, col1, moveList)
-    def setUpGameAI(self):
-        self.Opponent.randomizeFinalProduct()
-        self.finalDish = self.Opponent.finalDish
-        self.Opponent.generateApplianceAndGroceriesList()
-        self.applianceList = self.Opponent.applianceList
-        self.groceries = self.Opponent.groceries
-        self.moveList = list()
-        print(f'this is final dish: {self.finalDish}')
-        print(f'this is final appliance list: {self.applianceList}')
-        print(f'this is final gtoceries list: {self.groceries}')
-
-        #print(f'this is FINAL DISH: {finalDish}')
 
     #goes thru all the appliances the gameAI needs to reach
     def gameAIPath(self):
-        #appliances = self.Opponent.applianceList
-        for appliancesIndex in range(len(self.applianceList)):
+        self.moveList = list()
+        appliances = self.Opponent.applianceList
+        for appliancesIndex in range(len(appliances)):
             appliance = appliances[applianceIndex]
             #if starting at the list, start accumulating moves with the game Ai's initial starting row, col
             if appliancesIndex == 0: 
@@ -89,36 +78,18 @@ class MyApp(App):
 
         #need some kind of case in case it clicks outside the grid 
         color = MyApp.getColor(self, mouseX, mouseY)
-        print(MyApp.getCell(self, mouseX, mouseY))
-        print(color)
-        if color !=None and color=='pink':
-            (row, col) = MyApp.getCell(self, mouseX, mouseY)
-            currLocation = list((row, col))
-            for appliance, location in self.applianceDict.items():
-                #print(f'this is cURRENT LOCATION: {currLocation}')
-                #print(location)
-                if location == currLocation:
-                    #print('ur getting here')
-                    self.currentAppliance = appliance
-                    #print(self.currentAppliance)
+        if color !=None and 'pink':
+            row, cell = MyApp.getCell(self, mouseX, mouseY)
             self.isApplianceScreen = True 
-
             #trigger and open the appliance menu 
         else: 
             #print('im geting here')
             row, col = MyApp.getInvCell(self, mouseX, mouseY)
             if (row, col) != (-1, -1):
-                
-                print(self.outlineRowCol)
                 #add the ingredientPath of current selected to current selected hand
                 #don't add duplicates
                 if not self.inventory[row][0] in self.currentSelect:
-                    print(f'ths is {self.inventory[row][0]}')
-                    if self.inventory[row][0] != None:
-                        self.currentSelect.append(self.inventory[row][0])
-                        self.outlineRowCol.append((row, col))
-
-                    #print(self.currentSelect)
+                    self.currentSelect.append(self.inventory[row][0])
                     #print(self.currentSelect)
             #check if it's clicked within the appliance grid 
         #else: click within the aplliance screen
@@ -149,15 +120,7 @@ class MyApp(App):
         self.charCol = self.cols - 1 
         self.cookbooks, self.basket, self.Person, self.Opponent, self.Appliances, self.Ingredients = classes.setUpObjects()
         
-        self.invWidth = self.rightMargin - 2 * self.margin 
-        self.invLength = self.height - self.bottomMargin 
-        width = self.rightMargin - 2 * self.margin 
-        length = self.height - self.bottomMargin 
-        margin = width / 4.5
-        self.invGridWidth  = width - 2 * margin
-        self.invGridHeight = length - 2 * margin
-        self.gridWidth  = self.width - self.margin - self.rightMargin
-        self.gridHeight = self.height - self.margin - self.bottomMargin
+    
 
         #booleans for different modes 
         self.isApplianceScreen = False
@@ -165,20 +128,10 @@ class MyApp(App):
         self.isTimeUp = False
         self.isCombine = False
         self.pantryTimer = 20000 #start with 1 minute = 180000
-        self.combination = ''
+        
         self.currentSelect = list()
         MyApp.setUpInventory(self)
-        MyApp.setUpAppliances(self)
-        self.outlineRowCol = list()
-        self.currentAppliance = ''
-        MyApp.setUpGameAI(self)
 
-        self.basket = classes.randomizeBasket(self.cookbooks[0])
-
-    def convertMoveToAppliance(self):
-        for item in self.applianceList:
-            if item=='stack': 
-                item = 'plating'
     def setHorizontal(self, length, row, col, appliance):
         for i in range(length):
             col += 1 
@@ -198,25 +151,18 @@ class MyApp(App):
                 #self.applianceLocation[appliance] = [row, col]
             else:
                 color = 'gray'
-            self.board[row][col] = color
-    
-    def setUpAppliances(self):
-        self.applianceDict = { 'mix': [0, 3], 
-        'bake': [0, 9], 
-        'blend': [7, 14],
-        'saute': [14, 9],
-        'stack': [14, 3]
-        #'PLATING': [7, 0],
-        }
 
+            self.board[row][col] = color
+    def setUpAppliances(self, canvas):
+        gap = 3 #gap of 3 rows between everything 
+        applianceCount = 0
         MyApp.setHorizontal(self, 5, 0, 0,'whisk')
         MyApp.setHorizontal(self, 5, 0, 6, 'oven')        
         MyApp.setHorizontal(self, 5, self.rows-1, 0, 'blender')        
         MyApp.setHorizontal(self, 5, self.rows-1, 6, 'stovetop')        
-        #MyApp.setVertical(self, 5, 4, 0, 'plating')
+
+        MyApp.setVertical(self, 5, 4, 0, 'plating')
         MyApp.setVertical(self, 5, 4, self.cols-1, 'stack')
-
-
 #            for i in range(Appliance.cellsInLength):
 #                row = gap * applianceCount + i 
 #                col = (self.cols//2 - Appliance.cellsInLength//2) + i 
@@ -237,11 +183,8 @@ class MyApp(App):
         elif event.key == 'Right': self.charCol += 1
         elif event.key == 'c':
             if self.isApplianceScreen:
-                #self.isCombine = True
-                if len(self.currentSelect) >= 2:
-                    self.combination = MyApp.combineIngredients(self)
-                    self.isCombine = True
-                    print('combined!')
+                self.isCombine = True
+
     def convertMilli(self, milli):
         seconds=(milli//1000)%60
         minutes=(milli//(1000*60))%60
@@ -255,6 +198,7 @@ class MyApp(App):
             seconds = '0' + str(seconds)
         canvas.create_text(7* self.width/8, self.height/8, text = f'Time Left: {minutes}:{seconds}')
 
+
     def combineIngredients(self):
         ingredientNames = []
         for item in self.currentSelect:
@@ -265,8 +209,8 @@ class MyApp(App):
         firstIngredObj = MyApp.getIngredientObject(self, firstIngred)
         for otherIngred in secondIngred:
             secondIngredObj.append(MyApp.getIngredientObject(self, otherIngred))
-        combination = firstIngredObj.combine(secondIngredObj, 'saute')
-        return combination
+        print(secondIngredObj)
+
         #print(ingredientNames)
     def getIngredientObject(self, ingredient):
         for Ingredient in self.Ingredients:
@@ -296,6 +240,8 @@ class MyApp(App):
 
     # getCellBounds from grid-demo.py
     def getCellBounds(self, row, col):
+        self.gridWidth  = self.width - self.margin - self.rightMargin
+        self.gridHeight = self.height - self.margin - self.bottomMargin
         x0 = self.margin + self.gridWidth * col / self.cols
         x1 = self.margin + self.gridWidth * (col+1) / self.cols
         y0 = self.margin + self.gridHeight * row / self.rows
@@ -349,6 +295,8 @@ class MyApp(App):
         width = self.rightMargin - 2 * self.margin 
         length = self.height - self.bottomMargin 
         margin = width / 4.5
+        self.invGridWidth  = width - 2 * margin
+        self.invGridHeight = length - 2 * margin
 
         x0 = xStart+ margin + self.invGridWidth * col / self.invCols
         x1 = xStart+ margin + self.invGridWidth * (col+1) / self.invCols
@@ -416,6 +364,20 @@ class MyApp(App):
         midY = (y0+y1)//2
 
         return midX, midY 
+#don't use this function x
+    def drawIngredientsInInventoryScreen(self, canvas):
+        #loop thru index of everything in ur current inventory
+        for ingredIndex in range(len(self.inventory)): #inventory
+            #only show as many images as there r rows
+            """
+            if ingredIndex < self.invRows: 
+                Ingredient = self.inventory[ingredIndex]
+                path = Ingredient.path 
+                drawImage(self, path, midRow, midCol)
+"""
+            ingredientPath = self.inventory[ingredIndex]
+            img = self.loadImage(ingredientPath)
+            MyApp.drawImage(self,img, 0, 0, 'inventory')
     
     #function to call drawCell and draw a table to contain the images it will need
     def drawInventoryTable(self, canvas):
@@ -424,13 +386,10 @@ class MyApp(App):
                 MyApp.drawInvCell(self, canvas, row, col, 'lightgray')
 
     def drawInvCell(self,canvas, row, col, color):
-        if (row, col) in self.outlineRowCol:
-            outline = 'red'
-        else:
-            outline = 'gray'
+
         x0, y0, x1, y1 = MyApp.getInvCellBounds(self, row, col)
         
-        canvas.create_rectangle(x0, y0, x1, y1, fill = color, width=2, outline = outline)
+        canvas.create_rectangle(x0, y0, x1, y1, fill = color, outline='gray')
 
 
     def drawBoard(self, canvas):
@@ -448,11 +407,11 @@ class MyApp(App):
         xStart = self.margin
         yStart = self.height-self.bottomMargin+self.margin
         canvas.create_rectangle(xStart, yStart, xStart + length, yStart + width, fill = 'skyblue')
-        canvas.create_text((2*xStart+length)/2, yStart + length/35, text = f'{self.currentAppliance}')
-        canvas.create_text(xStart + length - length/6, yStart + width/2, text=f'Press c to cook')
-        if self.isCombine:
-            canvas.create_text(xStart + length/3, yStart + width/2, text=f'You have made: {self.combination}')
+        canvas.create_text((2*xStart+length)/2, yStart + length/35, text = 'APPLIANCE')
+    
     def drawInventoryScreen(self, canvas):
+        self.invWidth = self.rightMargin - 2 * self.margin 
+        self.invLength = self.height - self.bottomMargin 
         xStart = self.width - self.rightMargin + self.margin
         yStart = self.height/5
         canvas.create_rectangle(xStart, yStart, xStart + self.invWidth, yStart + self.invLength, fill = 'pink')
@@ -495,7 +454,7 @@ class MyApp(App):
         #draw image to be based on where the inventory is
         if grid == 'inventory':
             x0, x1, y0, y1 = MyApp.getInvCellBounds(self, midRow, midCol)
-            #self.invcellWidth  = self.invGridWidth / self.invcols
+            self.invcellWidth  = self.invGridWidth / self.invcols
             scaleFactor = MyApp.scaleImage(self, img, self.invGridWidth)
 
         else:
@@ -534,7 +493,6 @@ class MyApp(App):
     def getColor(self, x, y):
         #this check is taken from example 10 of https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
         if (not MyApp.pointInGrid(self, x, y)):
-            #print('THIS IS FALSE')
             return None
         row, cell = MyApp.getCell(self, x, y)
         print(self.board[row][cell])
@@ -545,7 +503,7 @@ class MyApp(App):
         
         MyApp.drawGameAI(self, canvas)
         MyApp.drawPlayer(self, canvas)
-        #MyApp.setUpAppliances(self, canvas)
+        MyApp.setUpAppliances(self, canvas)
         MyApp.drawInventoryScreen(self, canvas)
         MyApp.drawInventoryTable(self, canvas)
         MyApp.drawTimer(self, canvas)
@@ -554,6 +512,7 @@ class MyApp(App):
 
         #MyApp.drawButtons(self, canvas)
         #MyApp.drawIngredientsInInventoryScreen(self, canvas)
+    
         for ingred in self.inventory:
             if ingred[0] != None:
                 x, y = ingred[1][0], ingred[1][1]
