@@ -3,7 +3,6 @@
 #image sources:
 # https://stock.adobe.com/images/tin-can-market-shelf-icon-isometric-of-tin-can-market-shelf-vector-icon-for-web-design-isolated-on-white-background/238231291
 #http://clipart-library.com/free/egg-clipart-png.html
-#https://previews.123rf.com/images/chubarov/chubarov1506/chubarov150600023/41161413-gray-shut-down-gas-stove.jpg
 
 import selenium
 import math, copy, random
@@ -13,34 +12,38 @@ from selenium import webdriver
 #input path name to where driver is
 #driver = webdriver.Chrome('//Users/az/Documents/GitHub/Chopped_Simulation/chromedriver')  # Optional argument, if not specified will search path.
 
+#timer pseudo code: 
+#    timerDelay = 100 miliseconds
+#   whenever you want timer to start, app.timer 
+# 1 min in milliseconds - > 1000 
+# self.timer = 1000 
+#every timer fired, decrease self.timer by 100 
+#if self.timer is 0, time is up 
+
 from cmu_112_graphics import *
-from classesOfFood import * 
 #create classes of objects and ppl in sep file, import module here
-#import classesOfFood as Food
+import classesOfFood as Food
 class MyApp(App):
     def appStarted(self):
         #setting up the center of the avatar
-        self.cx = self.width/4
-        self.cy = 3*self.height/4
+        self.cx = self.width/2 
+        self.cy = self.height - 150
         self.messages = ['appStarted']
         self.r = 20
-
-        #setting up center of game AI
-        self.oppCX = 3 * self.width / 4
-        self.oppCY = 3 * self.height / 4 
-        self.possibleIngredients = ['potato', 'avocado', 'ricecake', 'pastrami', 'salami', 'bread', 
-                                    'cheese', 'pasta', 'oatmeal']
+        self.possibleIngredients = ['potato', 'ice cream', 'banana', 'cheese stick',
+                                    'bun', 'grapes', 'strawberries', 'tomatoes', 'feta', 'condensed milk', 
+                                    'brussel sprout', 'bok choy', 'mushroom', 
+                                    'macaroni cheese mix', 'chorizo', 'tofu', 'chickpea']
         self.basket = MyApp.randomIngredients(self)
         #list of all the objects you need 
         self.finalProduct = list()
-        self.pantryTimer = 20000 #start with 1 minute = 180000
+        self.pantryTimer = 10000 #start with 1 minute = 180000
         #different screens of game
         self.isTitleScreen = True
         self.isIngredientScreen = False
         self.isPantryMode = False
         self.isCookingMode = False
         self.isTimeUp = False
-        self.isApplianceScreen = False 
         #load images
         shelfPath = '/Users/az/Documents/GitHub/Chopped_Simulation/images/isoshelf.jpg'
         self.imageShelf = self.loadImage(shelfPath)
@@ -48,10 +51,8 @@ class MyApp(App):
         eggPath = '/Users/az/Documents/GitHub/Chopped_Simulation/images/egg.png'
         self.imageEgg = self.scaleImage(self.loadImage(eggPath), 1/10)
         choppedPath = '/Users/az/Documents/GitHub/Chopped_Simulation/images/chopped.png'
+        
         self.imageChopped = self.scaleImage(self.loadImage(choppedPath), 1/2)
-        self.imageOven = self.loadImage('/Users/az/Documents/GitHub/Chopped_Simulation/images/oven.jpg')
-        self.imageOven = self.scaleImage(self.imageOven, 1/10)
-
     def randomIngredients(self):
         self.basket = random.choices(self.possibleIngredients, k = 3)    
         return self.basket 
@@ -59,7 +60,6 @@ class MyApp(App):
         if not self.isTitleScreen:
             if self.pantryTimer>=0:
                 self.pantryTimer -=100
-                MyApp.moveGameAI(self)
             else:
                 self.isTimeUp = True
 
@@ -77,7 +77,6 @@ class MyApp(App):
         #canvas.create_oval(self.width//2 - self.r, 7* self.height/8-self.r, self.width//2 + self.r, 7* self.height/8+self.r, fill = 'red')
         canvas.create_image(self.width/2, 7*self.height/8, image = ImageTk.PhotoImage(self.imageEgg)) 
         canvas.create_text(6* self.width/8, 7*self.height/8, text = 'Press x to Exit', font = 'Verdana')
-
     def drawBasket(self, canvas):
         canvas.create_rectangle(6*self.width/8, 2*self.height/8, self.width, 5*self.height/8, fill = 'gray')
         canvas.create_text(7*self.width/8, 2.5 * self.height/8, text = 'BASKET', font = 'Verdana 20', fill = 'blue')
@@ -92,8 +91,6 @@ class MyApp(App):
         self.messages.append((mouseX, mouseY))
         if mouseX <= self.width/2 and mouseY <= self.height/2:
             self.isIngredientScreen = True 
-        if self.isCookingMode==True and mouseX<= self.width/2 and mouseY <= self.height/2:
-            self.isApplianceScreen = True
         
     def keyPressed(self, event):
         if event.key =='Up': self.cy -= 20
@@ -120,7 +117,6 @@ class MyApp(App):
                 self.isTimeUp = False
                 self.isCookingMode = True 
                 self.pantryTimer = 300000 
-        
     #taken from 112 Website
     def getCachedPhotoImage(self, image):
         # stores a cached version of the PhotoImage in the PIL/Pillow image
@@ -167,7 +163,6 @@ class MyApp(App):
     def drawPantryMode(self, canvas):
         MyApp.drawPantry(self, canvas)
         MyApp.drawPerson(self, canvas)
-        MyApp.drawGameAI(self, canvas)
         MyApp.drawStartingBasket(self, canvas)
         if self.isIngredientScreen:
             MyApp.drawIngredientScreen(self, canvas)
@@ -177,16 +172,9 @@ class MyApp(App):
         canvas.create_rectangle(0, 0, self.width, self.height, fill = 'white')
         canvas.create_text(self.width/2, self.height/8, text = 'Next Round!')
         MyApp.drawCookingMap(self, canvas)
-        if self.isApplianceScreen:
-            MyApp.drawApplianceScreen(self, canvas)
-
-    def drawApplianceScreen(self, canvas):
-        canvas.create_rectangle(self.width/8, 5*self.height/7, 7*self.width/8, 6.5*self.height/7,fill='blue')
     def drawCookingMap(self, canvas):
-        canvas.create_rectangle(0,self.height/5, self.width, self.height/3, fill = 'gray')
-        canvas.create_rectangle(0,self.height/3, self.width/5, self.height/1.5, fill = 'pink')
-        canvas.create_rectangle(4*self.width/5, self.height/3, self.width, self.height/1.5, fill = 'red')
-        canvas.create_image(self.width/2, self.height/4, image = ImageTk.PhotoImage(self.imageOven)) 
+        canvas.create_rectangle(0,self.height/5, self.width, self.height/3, fill = 'black')
+        canvas.create_rectangle(0,self.height/3, self.width/4, self.height/3, fill = 'pink')
 
     def drawStartingBasket(self, canvas):
         canvas.create_text(self.width/2, self.height/2.5, text = f'Your starting basket:', font = 'Verdana 11', fill = 'white')
@@ -207,61 +195,6 @@ class MyApp(App):
         MyApp.drawCookingScreen(self, canvas)
         MyApp.drawTimer(self, canvas)
         MyApp.drawPerson(self, canvas)
-        MyApp.drawGameAI(self, canvas)
-
-#draw gameAI avatar
-
-    def moveGameAI(self):
-        possibleDirs = [(0,+1), (0,-1), (1,0), (-1,0)]
-        direction = 500000* random.choice(possibleDirs)
-        if MyApp.isLegal(self, direction):
-            self.oppCX += direction[0]
-            self.oppCY -= direction[1]
-        else:
-            direction = random.choice(possibleDirs)
-            self.oppCX += direction[0]
-            self.oppCY -= direction[1]
-    #heuristic to move towards an appliance 
-    #try to move towards the next thing you need 
-    #once you finish each step, move onto assembling part 
-
-    #for tp2:
-    #finishing game ai 
-    #using appliances in cooking mode
-    #connect with web scraping
-    #work on shared kitchen
-    #no two ppl can share appliance at once
-    #replace dots with characters
-    #add ingredients 
-    #collisoin detection 
-#search psuedo code:
-#initialize "frontier" w initial state 
-#initialized explored set to be empty
-#while frontier is not empty do:
-    #remove node from frontier
-    #if node is goal state then we are done
-    #add node to explored set
-    #expand node, add children to the frontier
-
-#draw final product
-    def drawFinalProduct(self): #for plating mode 
-        """
-        if item is base: add to bottom
-        if item is midde: add to middle
-        if item is topping: add to top 
-        """
-        return 
-    def drawCombined(self):
-        #mix the colors of items 
-        #randomize pixel colors to generate new one
-        return
-
-    def isLegal(self, direction):
-        return True 
-    
-    def drawGameAI(self, canvas):
-        canvas.create_oval(self.oppCX-self.r, self.oppCY-self.r, self.oppCX+ self.r, self.oppCY+self.r, fill = 'red')
-
 
     def redrawAll(self, canvas):
         if self.isTitleScreen: MyApp.drawTitleScreen(self, canvas)
