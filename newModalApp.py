@@ -13,8 +13,10 @@
 #draw screen where it presents the final product 
 from cmu_112_graphics import *
 import classesOfFood as classes 
+import webScraping as web
 #recurisve function to get from row, col A to row, col B
-class MyApp(App):
+
+class CookingMode(Mode):
     #recursive game ai function 
     def generatePath(row0, col0, row1, col1, moveList):
         xDir = 0
@@ -40,16 +42,16 @@ class MyApp(App):
     
 
         if (row0==row1 and col0!=col1):
-            #return MyApp.generatePath(row0, col0 + yDir, row1, col1, moveList)
+            #return CookingMode.generatePath(row0, col0 + yDir, row1, col1, moveList)
             xDir = 0 
         elif (row0!= row1 and col0==col1):
-            #return MyApp.generatePath(row0 + xDir, col0, row1, col1, moveList)
+            #return CookingMode.generatePath(row0 + xDir, col0, row1, col1, moveList)
         #else:
             yDir = 0
         moveList.append((xDir, yDir))
         print((xDir, yDir))
 
-        return MyApp.generatePath(row0 + xDir, col0 + yDir, row1, col1, moveList)
+        return CookingMode.generatePath(row0 + xDir, col0 + yDir, row1, col1, moveList)
 
     #set up game AI properties for use throughout code
     def setUpGameAI(self):
@@ -58,7 +60,7 @@ class MyApp(App):
         self.Opponent.generateApplianceAndGroceriesList()
         self.applianceList = self.Opponent.applianceList
         self.moveList = list()
-        MyApp.gameAIPath(self)
+        CookingMode.gameAIPath(self)
         print(f'this is MOVE LIST: {self.moveList}')
         self.groceries = self.Opponent.groceries
         print(f'this is final dish: {self.finalDish}')
@@ -74,7 +76,7 @@ class MyApp(App):
         firstMoveList = list()
         firstAppRow, firstAppCol = self.accessPoints[firstAppliance][0], self.accessPoints[firstAppliance][1]
         #print(f'TESTING GAME AI PATH: {firstAppRow, firstAppCol}')
-        self.moveList+=(MyApp.generatePath(self.oppRow, self.oppCol, firstAppRow, firstAppCol, firstMoveList))
+        self.moveList+=(CookingMode.generatePath(self.oppRow, self.oppCol, firstAppRow, firstAppCol, firstMoveList))
         #go thru every pair:
         for applianceIndex in range(len(appliances)-1):
             appliance = appliances[applianceIndex]
@@ -85,7 +87,7 @@ class MyApp(App):
             #list to hold recursive results
             currMoveList = list()
             print('hello')
-            self.moveList+=(MyApp.generatePath(row0, col0, row1, col1, currMoveList))
+            self.moveList+=(CookingMode.generatePath(row0, col0, row1, col1, currMoveList))
                 #self.moveList+=['stop']
                 #applianceIndex+=1 
             #if starting at the list, start accumulating moves with the game Ai's initial starting row, col
@@ -97,7 +99,7 @@ class MyApp(App):
             #    row0, col0 = self.applianceDict[appliance][0], self.applianceDict[appliance][1]
             #    row1, col1 = self.applianceDict[nextAppliance][0], self.applianceDict[nextAppliance][1]
             #currentMoveList = list()
-            #self.moveList+=(MyApp.generatePath(row0, col0, row1, col1, currentMoveList))
+            #self.moveList+=(CookingMode.generatePath(row0, col0, row1, col1, currentMoveList))
 
 
     def isLegal(self, row, col):
@@ -112,11 +114,11 @@ class MyApp(App):
         mouseX, mouseY = event.x, event.y 
 
         #need some kind of case in case it clicks outside the grid 
-        color = MyApp.getColor(self, mouseX, mouseY)
-        print(MyApp.getCell(self, mouseX, mouseY))
+        color = CookingMode.getColor(self, mouseX, mouseY)
+        print(CookingMode.getCell(self, mouseX, mouseY))
         print(color)
         if color !=None and color=='pink':
-            (row, col) = MyApp.getCell(self, mouseX, mouseY)
+            (row, col) = CookingMode.getCell(self, mouseX, mouseY)
             currLocation = list((row, col))
             for appliance, location in self.applianceDict.items():
                 #print(f'this is cURRENT LOCATION: {currLocation}')
@@ -130,7 +132,7 @@ class MyApp(App):
             #trigger and open the appliance menu 
         else: 
             #print('im geting here')
-            row, col = MyApp.getInvCell(self, mouseX, mouseY)
+            row, col = CookingMode.getInvCell(self, mouseX, mouseY)
             if (row, col) != (-1, -1):
                 
                 print(self.outlineRowCol)
@@ -166,7 +168,7 @@ class MyApp(App):
         #self.goalRow = 5
         #self.goalCol = 5 
         #call helper function for list of moves it will need to take
-        #self.moves = MyApp.generatePath(self.oppRow, self.oppCol, self.goalRow, self.goalCol, [])
+        #self.moves = CookingMode.generatePath(self.oppRow, self.oppCol, self.goalRow, self.goalCol, [])
         self.moveNum = 0 
 
         self.charRow = self.rows-4
@@ -191,10 +193,10 @@ class MyApp(App):
         self.pantryTimer = 20000 #start with 1 minute = 180000
         self.combination = ''
         self.currentSelect = list()
-        MyApp.setUpInventory(self)
-        MyApp.setUpAppliances(self)
+        CookingMode.setUpInventory(self)
+        CookingMode.setUpAppliances(self)
         self.outlineRowCol = list()
-        MyApp.setUpGameAI(self)
+        CookingMode.setUpGameAI(self)
         
         self.basket = classes.randomizeBasket(self.cookbooks[0])
 
@@ -239,12 +241,12 @@ class MyApp(App):
         #'PLATING': [7, 0],
         }
 
-        MyApp.setHorizontal(self, 5, 0, 0,'whisk')
-        MyApp.setHorizontal(self, 5, 0, 6, 'oven')        
-        MyApp.setHorizontal(self, 5, self.rows-1, 0, 'blender')        
-        MyApp.setHorizontal(self, 5, self.rows-1, 6, 'stovetop')        
-        #MyApp.setVertical(self, 5, 4, 0, 'plating')
-        MyApp.setVertical(self, 5, 4, self.cols-1, 'stack')
+        CookingMode.setHorizontal(self, 5, 0, 0,'whisk')
+        CookingMode.setHorizontal(self, 5, 0, 6, 'oven')        
+        CookingMode.setHorizontal(self, 5, self.rows-1, 0, 'blender')        
+        CookingMode.setHorizontal(self, 5, self.rows-1, 6, 'stovetop')        
+        #CookingMode.setVertical(self, 5, 4, 0, 'plating')
+        CookingMode.setVertical(self, 5, 4, self.cols-1, 'stack')
 
 
 #            for i in range(Appliance.cellsInLength):
@@ -262,34 +264,38 @@ class MyApp(App):
 
     def keyPressed(self, event):
         if event.key =='Up': 
-            if MyApp.isLegal(self, self.charRow -1, self.charCol):
+            if CookingMode.isLegal(self, self.charRow -1, self.charCol):
                 self.charRow -=1 
             else:
                 print('NOT HERE')
         elif event.key == 'Down': 
-            if MyApp.isLegal(self, self.charRow +1, self.charCol):
+            if CookingMode.isLegal(self, self.charRow +1, self.charCol):
                 self.charRow += 1
             else:
                 print('nah')
         elif event.key == 'Left': 
-            if MyApp.isLegal(self, self.charRow, self.charCol-1):
+            if CookingMode.isLegal(self, self.charRow, self.charCol-1):
                 self.charCol-= 1 
         elif event.key == 'Right': 
-            if MyApp.isLegal(self, self.charRow, self.charCol+1):
+            if CookingMode.isLegal(self, self.charRow, self.charCol+1):
                 self.charCol += 1
         elif event.key == 'c':
             if self.isApplianceScreen:
                 #self.isCombine = True
                 if len(self.currentSelect) >= 2:
-                    self.combination = MyApp.combineIngredients(self)
+                    self.combination = CookingMode.combineIngredients(self)
                     self.isCombine = True
                     print('combined!')
+        #go to nex mode
+        elif event.key == 'n':
+            self.app.setActiveMode(self.app.judgingMode)
+            
     def convertMilli(self, milli):
         seconds=(milli//1000)%60
         minutes=(milli//(1000*60))%60
         return seconds, minutes
     def drawTimer(self, canvas):
-        seconds, minutes = MyApp.convertMilli(self, self.pantryTimer)
+        seconds, minutes = CookingMode.convertMilli(self, self.pantryTimer)
         if self.isTimeUp:
             minutes = '00'
             seconds = '00'
@@ -304,9 +310,9 @@ class MyApp(App):
         firstIngred = ingredientNames[0]
         secondIngred = ingredientNames[1:]
         secondIngredObj = list()
-        firstIngredObj = MyApp.getIngredientObject(self, firstIngred)
+        firstIngredObj = CookingMode.getIngredientObject(self, firstIngred)
         for otherIngred in secondIngred:
-            secondIngredObj.append(MyApp.getIngredientObject(self, otherIngred))
+            secondIngredObj.append(CookingMode.getIngredientObject(self, otherIngred))
         combination = firstIngredObj.combine(secondIngredObj, 'saute')
         return combination
         #print(ingredientNames)s
@@ -318,10 +324,10 @@ class MyApp(App):
     def timerFired(self):
         if self.waitTime ==-1:
             #moveNormally
-            MyApp.moveGameAI(self)
+            CookingMode.moveGameAI(self)
         elif self.waitTime ==0:
             self.moveNum +=1
-            MyApp.moveGameAI(self)
+            CookingMode.moveGameAI(self)
         else: #don't move 
             self.waitTime -=100
         if self.pantryTimer>=0:
@@ -331,7 +337,7 @@ class MyApp(App):
         
         #run combining methods if ingredients are successfully combined
         #if self.isCombine: 
-        #    MyApp.combineIngredients(self)
+        #    CookingMode.combineIngredients(self)
 
             
     def moveGameAI(self):
@@ -349,6 +355,7 @@ class MyApp(App):
             
 
     # getCellBounds from grid-demo.py
+    #creds to https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
     def getCellBounds(self, row, col):
         x0 = self.margin + self.gridWidth * col / self.cols
         x1 = self.margin + self.gridWidth * (col+1) / self.cols
@@ -373,7 +380,7 @@ class MyApp(App):
         return (row, col)
     #based off of https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
     def getInvCell(self, x, y):
-        if (not MyApp.pointInInvGrid(self, x, y)):
+        if (not CookingMode.pointInInvGrid(self, x, y)):
             return (-1, -1)
 
         # return (row, col) in which (x, y) occurred or (-1, -1) if outside grid.
@@ -420,10 +427,10 @@ class MyApp(App):
         path = ''
         img = None
         
-        Ingredient = MyApp.getIngredientObject(self, name)
+        Ingredient = CookingMode.getIngredientObject(self, name)
         path = Ingredient.path 
         img = self.loadImage(path)
-        scaleFactor = MyApp.findScaleFactor(self, img, goalWidth)
+        scaleFactor = CookingMode.findScaleFactor(self, img, goalWidth)
         img = self.scaleImage(img, scaleFactor)
                 
         return name, img #returns the name, loaded image to store in the list in inventory
@@ -439,33 +446,33 @@ class MyApp(App):
 
         potatoPath = '/Users/az/Documents/GitHub/Chopped_Simulation/images/potato.png'
         potato = self.loadImage(potatoPath)
-        scaleFactor1 = MyApp.findScaleFactor(self, potato, goalWidth)
+        scaleFactor1 = CookingMode.findScaleFactor(self, potato, goalWidth)
         potato = self.scaleImage(potato, scaleFactor1)
 
         milkPath = '/Users/az/Documents/GitHub/Chopped_Simulation/images/milk.png'
         milk = self.loadImage(milkPath)
-        scaleFactor2 = MyApp.findScaleFactor(self, milk, goalWidth)
+        scaleFactor2 = CookingMode.findScaleFactor(self, milk, goalWidth)
         milk = self.scaleImage(milk, scaleFactor2)
 """
-        spot0 = MyApp.getMidCell(self, 0, 0)
-        spot1 = MyApp.getMidCell(self, 1, 0)
-        spot2 = MyApp.getMidCell(self, 2, 0)
-        spot3 = MyApp.getMidCell(self, 3, 0)
-        spot4 = MyApp.getMidCell(self, 4, 0)
+        spot0 = CookingMode.getMidCell(self, 0, 0)
+        spot1 = CookingMode.getMidCell(self, 1, 0)
+        spot2 = CookingMode.getMidCell(self, 2, 0)
+        spot3 = CookingMode.getMidCell(self, 3, 0)
+        spot4 = CookingMode.getMidCell(self, 4, 0)
     
         self.inventory = [ [None, spot0], [None, spot1], [None, spot2], [None, spot3],
         [None, spot4] ]
 
-        self.inventory[0][0] = MyApp.getIngredientImg(self, 'potato')
-        self.inventory[1][0] = MyApp.getIngredientImg(self, 'milk')
-        self.inventory[2][0] = MyApp.getIngredientImg(self, 'butter')
+        self.inventory[0][0] = CookingMode.getIngredientImg(self, 'potato')
+        self.inventory[1][0] = CookingMode.getIngredientImg(self, 'milk')
+        self.inventory[2][0] = CookingMode.getIngredientImg(self, 'butter')
 
         #self.inventory.append([[potato], [20,20]])
         #self.inventory.append([[milk], [60,60]])
         print(self.inventory)
     #helper function to find the midpoint of the cell to place image in
     def getMidCell(self, row, cell):
-        x0,y0, x1, y1 = MyApp.getInvCellBounds(self,row,cell)
+        x0,y0, x1, y1 = CookingMode.getInvCellBounds(self,row,cell)
         midX = (x0+x1)//2 
         midY = (y0+y1)//2
 
@@ -475,14 +482,14 @@ class MyApp(App):
     def drawInventoryTable(self, canvas):
         for row in range(self.invRows):
             for col in range(self.invCols):
-                MyApp.drawInvCell(self, canvas, row, col, 'lightgray')
+                CookingMode.drawInvCell(self, canvas, row, col, 'lightgray')
 
     def drawInvCell(self,canvas, row, col, color):
         if (row, col) in self.outlineRowCol:
             outline = 'red'
         else:
             outline = 'gray'
-        x0, y0, x1, y1 = MyApp.getInvCellBounds(self, row, col)
+        x0, y0, x1, y1 = CookingMode.getInvCellBounds(self, row, col)
         
         canvas.create_rectangle(x0, y0, x1, y1, fill = color, width=2, outline = outline)
 
@@ -490,7 +497,7 @@ class MyApp(App):
     def drawBoard(self, canvas):
         for row in range(self.rows):
             for col in range(self.cols):
-                MyApp.drawCell(self,canvas,row,col,self.board[row][col])
+                CookingMode.drawCell(self,canvas,row,col,self.board[row][col])
 
 
     #taken from my HW7, Tetris
@@ -525,36 +532,30 @@ class MyApp(App):
         return inBounds
 
     def drawCell(self,canvas, row, col, color):
-        x0, y0, x1, y1 = MyApp.getCellBounds(self, row, col)
+        x0, y0, x1, y1 = CookingMode.getCellBounds(self, row, col)
         canvas.create_rectangle(x0, y0, x1, y1, fill = color
                                  )
 
     def drawGameAI(self, canvas):
-        (x0, y0, x1, y1) = MyApp.getCellBounds(self, self.oppRow, self.oppCol)
+        (x0, y0, x1, y1) = CookingMode.getCellBounds(self, self.oppRow, self.oppCol)
         canvas.create_oval(x0, y0, x1, y1, fill='red')
 
     def drawPlayer(self, canvas):
-        (x0, y0, x1, y1) = MyApp.getCellBounds(self, self.charRow, self.charCol)
+        (x0, y0, x1, y1) = CookingMode.getCellBounds(self, self.charRow, self.charCol)
         canvas.create_oval(x0, y0, x1, y1, fill='blue')
-
-    #heavily based on code from PIL optional lecture, link: https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=4c852dc1-658a-42dc-a8c0-ac790004263c   
-    def findScaleFactor(self, image, goalWidth):
-        width, height = image.size 
-        scaleFactor = goalWidth / width 
-        return scaleFactor    
-    
+        
     #given path of image and which row, col it should be centered in, draw image
 
     def drawImage(self, img, midRow, midCol, grid):
         #draw image to be based on where the inventory is
         if grid == 'inventory':
-            x0, x1, y0, y1 = MyApp.getInvCellBounds(self, midRow, midCol)
+            x0, x1, y0, y1 = CookingMode.getInvCellBounds(self, midRow, midCol)
             #self.invcellWidth  = self.invGridWidth / self.invcols
-            scaleFactor = MyApp.scaleImage(self, img, self.invGridWidth)
+            scaleFactor = CookingMode.scaleImage(self, img, self.invGridWidth)
 
         else:
-            x0, x1, y0, y1 = MyApp.getCellBounds(self, midRow, midCol)
-            scaleFactor = MyApp.scaleImage(self, img, self.cellWidth)
+            x0, x1, y0, y1 = CookingMode.getCellBounds(self, midRow, midCol)
+            scaleFactor = CookingMode.scaleImage(self, img, self.cellWidth)
 
         canvas.create_image((x0+x1)/2, (y0+y1)/2, image = ImageTk.PhotoImage(img)) 
         
@@ -571,7 +572,7 @@ class MyApp(App):
         return seconds, minutes
 
     def drawTimer(self, canvas):
-        seconds, minutes = MyApp.convertMilli(self, self.pantryTimer)
+        seconds, minutes = CookingMode.convertMilli(self, self.pantryTimer)
         if self.isTimeUp:
             minutes = '00'
             seconds = '00'
@@ -587,36 +588,222 @@ class MyApp(App):
 
     def getColor(self, x, y):
         #this check is taken from example 10 of https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
-        if (not MyApp.pointInGrid(self, x, y)):
+        if (not CookingMode.pointInGrid(self, x, y)):
             #print('THIS IS FALSE')
             return None
-        row, cell = MyApp.getCell(self, x, y)
+        row, cell = CookingMode.getCell(self, x, y)
         print(self.board[row][cell])
         return self.board[row][cell]
     def redrawAll(self, canvas):
     
-        MyApp.drawBoard(self,canvas)
+        CookingMode.drawBoard(self,canvas)
         
-        MyApp.drawGameAI(self, canvas)
-        MyApp.drawPlayer(self, canvas)
-        #MyApp.setUpAppliances(self, canvas)
-        MyApp.drawInventoryScreen(self, canvas)
-        MyApp.drawInventoryTable(self, canvas)
-        MyApp.drawTimer(self, canvas)
+        CookingMode.drawGameAI(self, canvas)
+        CookingMode.drawPlayer(self, canvas)
+        #CookingMode.setUpAppliances(self, canvas)
+        CookingMode.drawInventoryScreen(self, canvas)
+        CookingMode.drawInventoryTable(self, canvas)
+        CookingMode.drawTimer(self, canvas)
         if self.isApplianceScreen:
-            MyApp.drawApplianceScreen(self, canvas)
+            CookingMode.drawApplianceScreen(self, canvas)
 
-        #MyApp.drawButtons(self, canvas)
-        #MyApp.drawIngredientsInInventoryScreen(self, canvas)
+        #CookingMode.drawButtons(self, canvas)
+        #CookingMode.drawIngredientsInInventoryScreen(self, canvas)
         for ingred in self.inventory:
             if ingred[0] != None:
                 x, y = ingred[1][0], ingred[1][1]
 
                 img = ingred[0][1]
                 canvas.create_image(x, y, image = ImageTk.PhotoImage(img)) 
-    
+#modal app code from https://www.cs.cmu.edu/~112/notes/notes-animations-part3.html#subclassingModalApp
+class JudgingMode(Mode):
+    def appStarted(self):
+        self.finalProductGameAI = self.app.cookingMode.finalDish
+    def keyPressed(self, event):
+        #launch webScraping for opponent's dish
+        finalProduct = ['potatoes', 'milk', 'butter']
+
+        if event.key == 'o':
+            self.gameAINum = web.recipeScraper(finalProduct)
+            print(self.gameAINum)
+        elif event.key == 'p':
+            self.playerNum = web.recipeScraper(finalProduct)
+    def drawPlayerInfo(self, canvas):
+        canvas.create_text(self.width/4, self.height/2.2, text ='Press o to calculate Player', font = 'Verdana 12')
+        canvas.create_text(self.width/4, self.height/2, text ='PLAYER SCORE BREAKDOWN:')
+    def drawGameAIInfo(self, canvas):
+        canvas.create_text(3*self.width/4, self.height/4, text = f'{self.finalProductGameAI}', font = 'Verdana 15 bold')
+        canvas.create_text(3* self.width/4, self.height/2.2, text ='Press p to calculate Game AI', font = 'Verdana 12')
+        canvas.create_text(3*self.width/4, self.height/2, text = 'GAME AI SCORE BREAKDOWN:')
+    def drawScreen(self, canvas):
+        canvas.create_rectangle(0,0, self.width, self.height, fill = 'skyblue')
+        canvas.create_text(self.width/2, self.height/6, text='JUDGING BEGINS!', font='Arial 26 bold')
+
+    def redrawAll(self, canvas):
+        JudgingMode.drawScreen(self, canvas)
+        JudgingMode.drawPlayerInfo(self, canvas)
+        JudgingMode.drawGameAIInfo(self, canvas)
+
+class ShoppingMode(Mode):
+    def appStarted(self):
+        self.rows = 4
+        self.cols = 4 
+        self.margin = self.width/5
+        self.gridWidth  = self.width - 2 * self.margin
+        self.gridHeight = self.height - 2* self.margin
+        self.board = [self.cols * ['lightgray'] for row in range(self.rows)]
+        #self.fridge = list()
+        self.shoppingCart = list()
+        self.fridge = list()
+        ShoppingMode.setUpFridge(self)
+        self.loadedImgList = list()
+        #load images into list for later use
+        for i in range(len(self.fridge)):
+            name = self.fridge[i].name
+            self.loadedImgList.append(ShoppingMode.getIngredientImg(self, name))
+
+    def getIngredientObject(self, ingredient):
+        for Ingredient in self.Ingredients:
+            if Ingredient.name == ingredient:
+                return Ingredient 
+
+    def setUpFridge(self):
+        """
+        self.board = list()
+        for row in range(self.rows):
+            currCol = list()
+            for col in range(self.cols): 
+                location = ShoppingMode.getMidCell(self, row, col)
+                currCol.append(['lightgray', None, location])
+            self.board.append(currCol)
+"""
+        self.cookbooks, self.basket, self.Person, self.Opponent, self.Appliances, self.Ingredients = classes.setUpObjects()
+        self.shoppingCart+= self.basket 
         
-MyApp(width = 600, height = 600)
+       #self.fridge = [self.cols * [None] for row in range(self.rows)]
+        self.ingredientList = classes.ingredientList(self.cookbooks[0])
+        print(self.ingredientList)
+    
+        for i in range(self.rows*self.cols): 
+            if i < len(list(self.ingredientList)):
+                ingredName = list(self.ingredientList)[i]
+                Ingredient = ShoppingMode.getIngredientObject(self, ingredName)
+                print(Ingredient)
+                print()
+                self.fridge.append(Ingredient)
+        
+        #print(self.fridge)
+        """        
+        spot0 = ShoppingMode.getMidCell(self, 0, 0)
+        spot1 = ShoppingMode.getMidCell(self, 1, 0)
+        spot2 = ShoppingMode.getMidCell(self, 2, 0)
+        spot3 = ShoppingMode.getMidCell(self, 3, 0)
+        spot4 = ShoppingMode.getMidCell(self, 4, 0)
+    
+        self.fridge = [ [None, spot0], [None, spot1], [None, spot2], [None, spot3],
+        [None, spot4] ]
+        """
+    def getMidCell(self, row, cell):
+        x0,y0, x1, y1 = ShoppingMode.getCellBounds(self,row,cell)
+        midX = (x0+x1)//2 
+        midY = (y0+y1)//2
+
+        return midX, midY 
+    def mousePressed(self, event):
+        #check if mouse is pressed within the grid 
+        
+    def drawScreen(self, canvas):
+        canvas.create_rectangle(0,0, self.width, self.height, fill = 'pink')
+        canvas.create_text(self.width/2, self.height/8, text='GATHER YOUR INGREDIENTS!', font='Arial 26 bold')
+        canvas.create_text(self.width/2, 6.7* self.height/8, text = 'You must create a dish incorporating these basket ingredients!')
+        canvas.create_text(self.width/2, 7.5*self.height/8, text=f'{self.basket}')
+    def keyPressed(self, event):
+        #go to next mode 
+        if event.key == 'n':
+            self.app.setActiveMode(self.app.cookingMode)
+
+    def drawBoard(self, canvas):
+        for row in range(self.rows):
+            for col in range(self.cols):
+                ShoppingMode.drawCell(self,canvas,row,col,self.board[row][col])
+                
+    def drawCell(self,canvas, row, col, color):
+        x0, y0, x1, y1 = ShoppingMode.getCellBounds(self, row, col)
+        canvas.create_rectangle(x0, y0, x1, y1, fill = color
+                                 )
+
+    #heavily based on code from PIL optional lecture, link: https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=4c852dc1-658a-42dc-a8c0-ac790004263c   
+    def findScaleFactor(self, image, goalWidth):
+        width, height = image.size 
+        scaleFactor = goalWidth / width 
+        return scaleFactor    
+    
+    def getCellBounds(self, row, col):
+        x0 = self.margin + self.gridWidth * col / self.cols
+        x1 = self.margin + self.gridWidth * (col+1) / self.cols
+        y0 = self.margin + self.gridHeight * row / self.rows
+        y1 = self.margin + self.gridHeight * (row+1) / self.rows
+        return (x0, y0, x1, y1)
+    def getRowColFrom1D(self, list, index):
+        row = index//self.cols 
+        col = index%self.rows
+        return row, col 
+    def getIngredientImg(self, name):
+        """
+        width = self.rightMargin - 2 * self.margin 
+        length = self.height - self.bottomMargin 
+        margin = width / 4.5
+        goalWidth  = width - 2 * margin
+"""
+        x0, y0, x1, y1 = ShoppingMode.getCellBounds(self, 0, 0)
+        goalWidth = x1-x0
+        
+        path = ''
+        img = None
+        
+        Ingredient = ShoppingMode.getIngredientObject(self, name)
+        path = Ingredient.path 
+        img = self.loadImage(path)
+        scaleFactor = ShoppingMode.findScaleFactor(self, img, goalWidth)
+        img = self.scaleImage(img, scaleFactor)
+
+        return img #returns the loaded image to store in the list in inventory
+    def redrawAll(self, canvas):
+        ShoppingMode.drawScreen(self, canvas)
+        ShoppingMode.drawBoard(self, canvas)
+        """
+        for ingred in self.fridge:
+            #as long as there an image
+            if ingred != None:
+                x,y = ingred[0], ingred[1]
+                img = ingred[1]
+                canvas.create_image(x, y , image = ImageTk.PhotoImage(img))
+        """
+        for ingredIndex in range(len(self.fridge)):
+            ingred = self.fridge[ingredIndex] #returningredient object
+            path = ingred.path
+            row, col = ShoppingMode.getRowColFrom1D(self, self.fridge, ingredIndex)
+            print(f'{ingred}: {row, col}')
+            x, y = ShoppingMode.getMidCell(self, row, col)
+            
+            #get loaded img from list 
+            img = self.loadedImgList[ingredIndex]
+
+            #reset img to be scale factor 
+            canvas.create_image(x, y, image = ImageTk.PhotoImage(img)) 
+            #print(ingred)
+                #x, y = ingred[1][0], ingred[1][1]
+                #img = ingred[0][1]
+                #
+class MyModalApp(ModalApp):
+    def appStarted(app):
+        app.shoppingMode = ShoppingMode()
+        app.cookingMode = CookingMode()
+        app.judgingMode = JudgingMode()
+        app.setActiveMode(app.shoppingMode)
+
+        app.timerDelay = 500
+app = MyModalApp(width = 600, height = 600)
 
 
 

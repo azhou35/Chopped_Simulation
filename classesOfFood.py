@@ -18,10 +18,27 @@ def setUpObjects():
     appliances = (Oven, Stovetop, Blender, Whisk, Plating)
 
     Potato = Staples('potato', 'vegetable')
+    Egg = Staples('egg', 'protein')
     Butter = Staples('butter', 'dairy')
     Milk = Staples('milk', 'dairy')
+    Onion = Staples('onion', 'vegetable')
+    Flour = Staples('flour', 'grain')
+    Strawberry = Staples('strawberry', 'fruit')
+    Lettuce = Staples('lettuce', 'vegetable')
+    Fish = Staples('fish', 'protein')
+    Cheese = Staples('cheese', 'dairy')
+    Chicken = Staples('chicken', 'protein')
+    Tomato = Staples('tomato', 'vegetable')
+    Kale = Staples('kale', 'vegetable')
+    Rice = Staples('rice', 'grain')
+    Sugar = Staples('sugar', 'fruit')
+    Bread = Staples('bread', 'grain')
+    Bagel = Staples('bagel', 'grain')
 
-    ingredients = (Potato, Butter, Milk)
+
+
+
+    ingredients = (Potato, Butter, Milk, Onion, Flour, Strawberry, Lettuce, Fish, Cheese, Chicken, Tomato, Kale, Rice, Sugar, Bread, Bagel, Egg)
 
     print(Potato.combine([Milk, Butter], ['saute']))
     
@@ -54,7 +71,6 @@ def validCombination(basket, methods, firstLevelCookbook, secondLevelCookbook, t
                 if isRecipe(basket, methods, recipe):
                     return dish #return the dish that it successfully creates 
     return None 
-    
 def setUpCookbooks():
     #12/2 setting up recipes for food, simplified representations
     #first listindex of recipe is all the REQUIRED ingredients
@@ -67,7 +83,10 @@ def setUpCookbooks():
                         'cookedChicken': [['chicken'], ['saute', 'bake']],
                         'friedEgg': [['egg'], ['saute', 'bake']], 
                         'cookedRice': [['rice'], ['saute']],
-                        'mashedPotato': [['potato', 'milk', 'butter'], ['mix', 'saute', 'blend']]                    
+                        'mashedPotato': [['potato', 'milk', 'butter'], ['mix', 'saute', 'blend']],                    
+                        'cookedFish': [['fish'], ['saute', 'bake']],
+                        'salad': [['lettuce', 'onion', 'kale'], ['mix', 'stack']],
+                        'toastedBagel': [['bagel'], ['saute', 'bake']]
 
     }     
 
@@ -118,7 +137,7 @@ def randomizeBasket(cookbook):
     ingredients = ingredientList(cookbook)
     #convert to list to make subscriptable for random.choices
     ingredients = list(ingredients)
-    basket = random.choices(ingredients, k=4)
+    basket = random.choices(ingredients, k=2)
     return basket
 
 #create any possible iterations of firstLevelCookbook from basket ingredients, which will be used

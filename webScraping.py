@@ -8,7 +8,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import time
 #function to go thru every ingred in final Product 
-finalProduct = ['potatoes', 'milk', 'butter']
 def recipeScraper(finalProduct):
 
     driver = webdriver.Chrome('//Users/az/Documents/GitHub/Chopped_Simulation/chromedriver')  # Optional argument, if not specified will search path.
@@ -41,7 +40,6 @@ def recipeScraper(finalProduct):
     #click search button to search
     time.sleep(5)
     searchButton = '//html//body//div[3]//div[1]//div[5]//div//div[1]//div//div[3]//button[1]'
-    
     #findSearchButton = driver.find_element_by_class_name("button search-submit-button btn-primary")
     #driver.switch_to.frame(frame)
     
@@ -51,30 +49,46 @@ def recipeScraper(finalProduct):
     #find all the search buttons 
     #find the right index 
     #find all elements of "search Button"
-    #hard code and click the right
-    #WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, searchButton))).click()
+
     clickSearchButton = findSearchButton.click()
     #frame = driver.find_element_by_xpath('//frame[@name="main"]')
     #driver.switch_to.frame(frame)
-    #findSearchButton = driver.find_element_by_class_name("button search-submit-button btn-primary")
+    #findSearchButton = driver.find_element_by_class_name("button search-submit-button btn-primary")s
 
 #    clickSearchButton = findSearchButton.click()
 
     time.sleep(15)
 
-    recipesResult = '//*[@id="mainApp"]/div[1]/div[3]/div/div[2]/section[1]/h4'
-    findRecipesResult = driver.find_element_by_xpath(recipesResult)
-
-    recipeText = findRecipesResult.getAttribute("outerHTML")
-    print(recipeText)
+    
+    #recipesResult = '//html//body//div[3]//div[1]//div[3]//div//div[2]//section[1]//h4'
+    #findRecipesResult = driver.find_element_by_xpath(recipesResult)
+    #findRecipesResult = driver.find_element_by_class_name("grid-title h4-text primary-dark font-bold")
+    h4Results = driver.find_elements_by_tag_name('h4')
+    recipeResult = h4Results[1]
+    #recipeText = recipeResult.getAttribute("outerHTML")
+    
+    #print(recipeText)
     
     #search_box = driver.find_element_by_name('q')
     #search_box.send_keys('ChromeDriver')
     #search_box.submit()
-
+    recipeText = recipeResult.text
+    num = ''
+    for x in recipeText:
+        if x in '0123456789':
+            num = num + x
+        if x== " ":
+            break
+    #convert back into a number 
+    num = int(num)
     #driver.quit()
+    return num
 
-recipeScraper(finalProduct)
+    #https://matix.io/extract-text-from-webpage-using-beautifulsoup-and-python/
+    #PARSING THE HTML PAGE
+
+#gameAINumRecipes = recipeScraper(finalProduct)
+#print(gameAINumRecipes)
 """
 driver.get('https://myfridgefood.com/?detailed=true')
     time.sleep(5)
