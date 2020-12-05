@@ -264,20 +264,20 @@ class CookingMode(Mode):
 
 
     def keyPressed(self, event):
-        if event.key =='Up': 
+        if event.key =='w': 
             if CookingMode.isLegal(self, self.charRow -1, self.charCol):
                 self.charRow -=1 
             else:
                 print('NOT HERE')
-        elif event.key == 'Down': 
+        elif event.key == 's': 
             if CookingMode.isLegal(self, self.charRow +1, self.charCol):
                 self.charRow += 1
             else:
                 print('nah')
-        elif event.key == 'Left': 
+        elif event.key == 'a': 
             if CookingMode.isLegal(self, self.charRow, self.charCol-1):
                 self.charCol-= 1 
-        elif event.key == 'Right': 
+        elif event.key == 'd': 
             if CookingMode.isLegal(self, self.charRow, self.charCol+1):
                 self.charCol += 1
         elif event.key == 'c':
@@ -292,6 +292,7 @@ class CookingMode(Mode):
             self.app.setActiveMode(self.app.judgingMode)
         
         #this is where the loaded List might function differently, so call here
+        CookingMode.loadImage(self)
     def convertMilli(self, milli):
         seconds=(milli//1000)%60
         minutes=(milli//(1000*60))%60
@@ -470,21 +471,19 @@ class CookingMode(Mode):
         self.inventory+=self.app.shoppingMode.hand
         
         self.ingredientObjects = list()
-#        for name in self.inventory:
-#            self.ingredientObjects(CookingMode.getIngredientImg(self, name)) 
+        #for name in self.inventory:
+        #    self.ingredientObjects(CookingMode.getIngredientImg(self, name)) 
 
         #this is the inventory that shows up on the screen, limit of 5
         self.displayInventory = [ [None, spot0], [None, spot1], [None, spot2], [None, spot3],
         [None, spot4] ]
         
-
-#        self.inventory[0][0] = CookingMode.getIngredientImg(self, 'potato')
-#        self.inventory[1][0] = CookingMode.getIngredientImg(self, 'milk')
-#        self.inventory[2][0] = CookingMode.getIngredientImg(self, 'butter')
+        #self.inventory[0][0] = CookingMode.getIngredientImg(self, 'potato')
+        #self.inventory[1][0] = CookingMode.getIngredientImg(self, 'milk')
+        #self.inventory[2][0] = CookingMode.getIngredientImg(self, 'butter')
     
         #self.inventory.append([[potato], [20,20]])
         #self.inventory.append([[milk], [60,60]])
-        #print(f'this IS MY cuRRENT INVNEORY: {self.inventory}')
     #helper function to find the midpoint of the cell to place image in
     def getMidCell(self, row, cell):
         x0,y0, x1, y1 = CookingMode.getInvCellBounds(self,row,cell)

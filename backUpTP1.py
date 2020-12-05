@@ -49,7 +49,6 @@ class CookingMode(Mode):
         #else:
             yDir = 0
         moveList.append((xDir, yDir))
-        print((xDir, yDir))
 
         return CookingMode.generatePath(row0 + xDir, col0 + yDir, row1, col1, moveList)
 
@@ -61,12 +60,8 @@ class CookingMode(Mode):
         self.applianceList = self.Opponent.applianceList
         self.moveList = list()
         CookingMode.gameAIPath(self)
-        print(f'this is MOVE LIST: {self.moveList}')
         self.groceries = self.Opponent.groceries
-        print(f'this is final dish: {self.finalDish}')
-        print(f'this is final appliance list: {self.applianceList}')
-        print(f'this is final gtoceries list: {self.groceries}')
-
+        print(f'GROCERIESSS {self.groceries}')
         #print(f'this is FINAL DISH: {finalDish}')
 
     #goes thru all the appliances the gameAI needs to reach
@@ -75,7 +70,6 @@ class CookingMode(Mode):
         firstAppliance = appliances[0]
         firstMoveList = list()
         firstAppRow, firstAppCol = self.accessPoints[firstAppliance][0], self.accessPoints[firstAppliance][1]
-        #print(f'TESTING GAME AI PATH: {firstAppRow, firstAppCol}')
         self.moveList+=(CookingMode.generatePath(self.oppRow, self.oppCol, firstAppRow, firstAppCol, firstMoveList))
         #go thru every pair:
         for applianceIndex in range(len(appliances)-1):
@@ -83,10 +77,9 @@ class CookingMode(Mode):
             nextAppliance = appliances[applianceIndex+1]
             row0, col0 = self.accessPoints[appliance][0], self.accessPoints[appliance][1]
             row1, col1 = self.accessPoints[nextAppliance][0], self.accessPoints[nextAppliance][1]
-            print(f'this is {row1, col1}')
+            #print(f'this is {row1, col1}')
             #list to hold recursive results
             currMoveList = list()
-            print('hello')
             self.moveList+=(CookingMode.generatePath(row0, col0, row1, col1, currMoveList))
                 #self.moveList+=['stop']
                 #applianceIndex+=1 
@@ -101,6 +94,9 @@ class CookingMode(Mode):
             #currentMoveList = list()
             #self.moveList+=(CookingMode.generatePath(row0, col0, row1, col1, currentMoveList))
 
+    def getIndex(self, row, col, rows):
+        index = ((row * rows) + col)
+        return index 
 
     def isLegal(self, row, col):
         if self.board[row][col] == 'white':
@@ -108,15 +104,12 @@ class CookingMode(Mode):
         else:
             return False  
     #oveList = list()
-    #print(generatePath(0, 0, 4, 5, moveList))
     #keeps track of Mouse pressed 
     def mousePressed(self, event):
         mouseX, mouseY = event.x, event.y 
 
         #need some kind of case in case it clicks outside the grid 
         color = CookingMode.getColor(self, mouseX, mouseY)
-        print(CookingMode.getCell(self, mouseX, mouseY))
-        print(color)
         if color !=None and color=='pink':
             (row, col) = CookingMode.getCell(self, mouseX, mouseY)
             currLocation = list((row, col))
@@ -135,14 +128,15 @@ class CookingMode(Mode):
             row, col = CookingMode.getInvCell(self, mouseX, mouseY)
             if (row, col) != (-1, -1):
                 
-                print(self.outlineRowCol)
                 #add the ingredientPath of current selected to current selected hand
                 #don't add duplicates
-                if not self.inventory[row][0] in self.currentSelect:
-                    print(f'ths is {self.inventory[row][0]}')
-                    if self.inventory[row][0] != None:
-                        self.currentSelect.append(self.inventory[row][0])
+                if not self.displayInventory[row][0] in self.currentSelect:
+                    if self.displayInventory[row][0] != None:
+                        self.currentSelect.append(self.inventory[row])
                         self.outlineRowCol.append((row, col))
+                        #index = CookingMode.getIndex(self, row, col, 5)
+                        #print(index)
+                        #self.ingredientHistory.append(self.inventory[index])
 
                     #print(self.currentSelect)
                     #print(self.currentSelect)
@@ -173,7 +167,7 @@ class CookingMode(Mode):
 
         self.charRow = self.rows-4
         self.charCol = 0
-        self.cookbooks, self.basket, self.Person, self.Opponent, self.Appliances, self.Ingredients = classes.setUpObjects()
+        self.cookbooks, self.basket, self.Person, self.Opponent, self.Appliances, self.IngredientObjects = classes.setUpObjects()
         
         self.invWidth = self.rightMargin - 2 * self.margin 
         self.invLength = self.height - self.bottomMargin 
@@ -193,14 +187,14 @@ class CookingMode(Mode):
         self.pantryTimer = 20000 #start with 1 minute = 180000
         self.combination = ''
         self.currentSelect = list()
+        self.ingredientHistory = list()
         CookingMode.setUpInventory(self)
         CookingMode.setUpAppliances(self)
         self.outlineRowCol = list()
         CookingMode.setUpGameAI(self)
-        
+        CookingMode.placeImage(self)
         self.basket = classes.randomizeBasket(self.cookbooks[0])
-
-        
+        self.playerFinalDish = ''
     def convertMoveToAppliance(self):
         for item in self.applianceList:
             if item=='stack': 
@@ -267,13 +261,9 @@ class CookingMode(Mode):
         if event.key =='Up': 
             if CookingMode.isLegal(self, self.charRow -1, self.charCol):
                 self.charRow -=1 
-            else:
-                print('NOT HERE')
         elif event.key == 'Down': 
             if CookingMode.isLegal(self, self.charRow +1, self.charCol):
                 self.charRow += 1
-            else:
-                print('nah')
         elif event.key == 'Left': 
             if CookingMode.isLegal(self, self.charRow, self.charCol-1):
                 self.charCol-= 1 
@@ -285,13 +275,18 @@ class CookingMode(Mode):
                 #self.isCombine = True
                 if len(self.currentSelect) >= 1:
                     self.combination = CookingMode.combineIngredients(self)
+                    self.playerFinalDish = self.combination
                     self.isCombine = True
-                    print('combined!')
         #go to nex mode
         elif event.key == 'n':
             self.app.setActiveMode(self.app.judgingMode)
         
+        elif event.key == 'x':
+            self.inventory.append(self.combination)
+            self.isApplianceScreen = False
+            self.combination = ''
         #this is where the loaded List might function differently, so call here
+        CookingMode.placeImage(self)
     def convertMilli(self, milli):
         seconds=(milli//1000)%60
         minutes=(milli//(1000*60))%60
@@ -307,8 +302,21 @@ class CookingMode(Mode):
 
     def combineIngredients(self):
         ingredientNames = []
+        #print(f'this is current select: {self.currentSelect}')
         for item in self.currentSelect:
-            ingredientNames.append(item[0])
+            if (isinstance(item, classes.Staples)):
+                ingredObject = item
+                self.ingredientHistory.append(ingredObject.name)
+            else:
+                self.ingredientHistory.append(item)
+                ingredObject = CookingMode.getIngredientObject(self, item)
+            #print(isinstance(ingredObject, classes.Staples))
+            ingredientNames.append(ingredObject)
+        firstIngred = ingredientNames[0]
+        secondIngred = ingredientNames[1:]
+        combination = firstIngred.combine(secondIngred, self.currentAppliance)
+        return combination
+        """
         firstIngred = ingredientNames[0]
         secondIngred = ingredientNames[1:]
         secondIngredObj = list()
@@ -317,14 +325,17 @@ class CookingMode(Mode):
             secondIngredObj.append(CookingMode.getIngredientObject(self, otherIngred))
         combination = firstIngredObj.combine(secondIngredObj, 'saute')
         return combination
+        """
         #print(ingredientNames)s
     def getIngredientObject(self, ingredient):
-        for Ingredient in self.Ingredients:
-            if Ingredient.name == ingredient:
-                return Ingredient 
+        for ingredObject in self.IngredientObjects:
+            if ingredObject.name == ingredient:
+                #print(f'within GET INGREDIENT OBJECT {isinstance(ingredObject, classes.Staples)}')
+
+                return ingredObject
 
     def timerFired(self):
-        
+        CookingMode.placeImage(self)
         if self.waitTime ==-1:
             #moveNormally
             CookingMode.moveGameAI(self)
@@ -429,13 +440,19 @@ class CookingMode(Mode):
 
         path = ''
         img = None
-        
-        Ingredient = CookingMode.getIngredientObject(self, name)
-        path = Ingredient.path 
+        if (isinstance(name, classes.Staples)):
+            Ingredient = name
+        else:
+            Ingredient = CookingMode.getIngredientObject(self, name)
+        #print(f'this is ingredient in getingredientimg: {Ingredient}')
+        if Ingredient != None:
+            path = Ingredient.path
+        else:
+            path = '/Users/az/Documents/GitHub/Chopped_Simulation/images/gunk.png'
         img = self.loadImage(path)
         scaleFactor = CookingMode.findScaleFactor(self, img, goalWidth)
         img = self.scaleImage(img, scaleFactor)
-                
+                    
         return img #returns the  loaded image to store in the list in ingredientObject
     #function to set up attributes of inventory for later use
     def setUpInventory(self):
@@ -469,14 +486,19 @@ class CookingMode(Mode):
 
         self.inventory+=self.app.shoppingMode.hand
         
-        self.ingredientObjects = list()
+        #self.ingredientObjects = list()
 #        for name in self.inventory:
 #            self.ingredientObjects(CookingMode.getIngredientImg(self, name)) 
 
         #this is the inventory that shows up on the screen, limit of 5
         self.displayInventory = [ [None, spot0], [None, spot1], [None, spot2], [None, spot3],
         [None, spot4] ]
-        
+
+        for i in range(len(self.inventory)):
+            name = self.inventory[i]
+            #if i < len(self.displayInventory) - 2:
+            loadedImg = CookingMode.getIngredientImg(self, name)
+            self.displayInventory[i][0] = loadedImg 
 
 #        self.inventory[0][0] = CookingMode.getIngredientImg(self, 'potato')
 #        self.inventory[1][0] = CookingMode.getIngredientImg(self, 'milk')
@@ -530,9 +552,11 @@ class CookingMode(Mode):
         yStart = self.height-self.bottomMargin+self.margin
         canvas.create_rectangle(xStart, yStart, xStart + length, yStart + width, fill = 'skyblue')
         canvas.create_text((2*xStart+length)/2, yStart + length/35, text = f'{self.currentAppliance}')
-        canvas.create_text(xStart + length - length/6, yStart + width/2, text=f'Press c to cook')
+        canvas.create_text(xStart + length - length/6, yStart + width/2, text=f'Press c to {self.currentAppliance}')
+        canvas.create_text(xStart + length/6, yStart + length/35, text = 'Press x to add')
         if self.isCombine:
             canvas.create_text(xStart + length/3, yStart + width/2, text=f'You have made: {self.combination}')
+            
     def drawInventoryScreen(self, canvas):
         xStart = self.width - self.rightMargin + self.margin
         yStart = self.height/5
@@ -576,7 +600,6 @@ class CookingMode(Mode):
         else:
             x0, x1, y0, y1 = CookingMode.getCellBounds(self, midRow, midCol)
             scaleFactor = CookingMode.scaleImage(self, img, self.cellWidth)
-
         canvas.create_image((x0+x1)/2, (y0+y1)/2, image = ImageTk.PhotoImage(img)) 
         
     #taken from 112 Website
@@ -612,24 +635,34 @@ class CookingMode(Mode):
             #print('THIS IS FALSE')
             return None
         row, cell = CookingMode.getCell(self, x, y)
-        print(self.board[row][cell])
+        #print(self.board[row][cell])
         return self.board[row][cell]
     #helper function to "place" loaed image into displayinventory, changes if user needs to display more ingredients 
+    
     def placeImage(self):
+        #run thru 
         for i in range(len(self.displayInventory)):
-            ingredName = self.inventory[i]
-            loadedImg = CookingMode.getIngredientImg(self, ingredName)
-            #load default None to be image instead 
-            self.displayInventory[i][0] = loadedImage
+            # check that i is within currnet list of ingredients in inventory
+            if i < len(self.inventory):
+                ingredName = self.displayInventory[i]
+                ingredName = CookingMode.getIngredientObject(self, ingredName)
+                if ingredName != None:
+                    loadedImg = CookingMode.getIngredientImg(self, ingredName)
+                    #load default None to be image instead 
+                    self.displayInventory[i][0] = loadedImg
+                    #print(f'TTHIS IS DISPLAY INVNETORY {self.displayInventory}')
     #helper function to draw the currently loaded images in displayInventory
+
     def drawInventoryIngredients(self, canvas):
-        for ingred in self.displayInventory: 
-            if ingred[0] != None:
-                x, y = ingred[1][0], ingred[1][1]
+        for i in range(len(self.displayInventory)): 
+            #as long as there's the objected loaded in that inventory, proceed
+            if self.displayInventory[i][0] != None:
+                x, y = self.displayInventory[i][1][0], self.displayInventory[i][1][1]
                 #this should be the already loaded image 
-                img = ingred[0][1]
+                img = self.displayInventory[i][0]
                 #print(ingred)
                 canvas.create_image(x, y, image = ImageTk.PhotoImage(img)) 
+
     def redrawAll(self, canvas):
     
         CookingMode.drawBoard(self,canvas)
@@ -644,7 +677,7 @@ class CookingMode(Mode):
             CookingMode.drawApplianceScreen(self, canvas)
 
         #CookingMode.drawButtons(self, canvas)
-        #CookingMode.drawIngredientsInInventoryScreen(self, canvas)
+        CookingMode.drawInventoryIngredients(self, canvas)
         """
         for ingred in self.inventory:
             if ingred[0] != None:
@@ -657,31 +690,73 @@ class CookingMode(Mode):
 class JudgingMode(Mode):
     def appStarted(self):
         self.finalProductGameAI = self.app.cookingMode.finalDish
+        self.finalProductPlayer = self.app.cookingMode.playerFinalDish
+        self.playerIngredients = self.app.cookingMode.ingredientHistory
+        self.gameAIIngredients = self.app.cookingMode.groceries
+        self.playerWebScore = ''
+        self.gameAIWebScore = ''
+        print(self.gameAIIngredients)
+        self.numberCalculated = 0
+        self.isWinnerCalculated=False
     def keyPressed(self, event):
         #launch webScraping for opponent's dish
-        finalProduct = ['potatoes', 'milk', 'butter']
 
         if event.key == 'o':
-            self.gameAINum = web.recipeScraper(finalProduct)
+            playerNum = web.recipeScraper(self.playerIngredients)
+            self.playerWebScore = JudgingMode.calculateScore(self, playerNum)
+            self.numberCalculated+=1
             #rint(self.gameAINum)
         elif event.key == 'p':
-            self.playerNum = web.recipeScraper(finalProduct)
+            gameAINum = web.recipeScraper(self.gameAIIngredients)
+            self.gameAIWebScore = JudgingMode.calculateScore(self, gameAINum)
+            self.numberCalculated+=1
+        elif event.key == 'w':
+            self.isWinnerCalculated = True
+
+    def calculateScore(self, num):
+        #case where there are no recipes bc combo is so bizzarre
+        if num < 5: 
+            webScore = 3
+        #standard number of recipes, this is a complex, complete recipe
+        elif 5< num < 20:
+            webScore = 8
+        else:
+            webScore = 6 
+        return webScore
+
+
     def drawPlayerInfo(self, canvas):
+        canvas.create_text(self.width/4, self.height/4, text = f'{self.finalProductPlayer}', font = 'Verdana 15 bold')
         canvas.create_text(self.width/4, self.height/2.2, text ='Press o to calculate Player', font = 'Verdana 12')
         canvas.create_text(self.width/4, self.height/2, text ='PLAYER SCORE BREAKDOWN:')
+        canvas.create_text(self.width/4, 4*self.height/5, text=f'SCORE IS: {self.playerWebScore}', font = 'Verdana 14 bold')
     def drawGameAIInfo(self, canvas):
         canvas.create_text(3*self.width/4, self.height/4, text = f'{self.finalProductGameAI}', font = 'Verdana 15 bold')
         canvas.create_text(3* self.width/4, self.height/2.2, text ='Press p to calculate Game AI', font = 'Verdana 12')
         canvas.create_text(3*self.width/4, self.height/2, text = 'GAME AI SCORE BREAKDOWN:')
+        canvas.create_text(3*self.width/4, 4*self.height/5, text=f'SCORE IS: {self.gameAIWebScore}', font = 'Verdana 14 bold')
+
+
     def drawScreen(self, canvas):
         canvas.create_rectangle(0,0, self.width, self.height, fill = 'skyblue')
         canvas.create_text(self.width/2, self.height/6, text='JUDGING BEGINS!', font='Arial 26 bold')
 
+    def drawWin(self,canvas):
+        if self.playerWebScore > self.gameAIWebScore:
+            winner = 'PLAYER'
+        elif self.playerWebScore<self.gameAIWebScore:
+            winner = 'GAME AI'
+        else:
+            winner = 'TIE! NEITHER'
+        canvas.create_text(self.width/2, 5*self.height-6, text = f'{winner} WINS THE COOKING COMPETITION')
     def redrawAll(self, canvas):
         JudgingMode.drawScreen(self, canvas)
         JudgingMode.drawPlayerInfo(self, canvas)
         JudgingMode.drawGameAIInfo(self, canvas)
+        if self.isWinnerCalculated:
+            JudgingMode.drawWin(self, canvas)
 
+    
 class ShoppingMode(Mode):
     def appStarted(self):
         self.rows = 4
@@ -705,7 +780,6 @@ class ShoppingMode(Mode):
         for Ingredient in self.Ingredients:
             if Ingredient.name == ingredient:
                 return Ingredient 
-
     def setUpFridge(self):
         """
         self.board = list()
@@ -772,7 +846,6 @@ class ShoppingMode(Mode):
         #go to next mode 
         if event.key == 'n':
             #add all currently selected to your inventory 
-            print('successfulling clicking')
             self.app.setActiveMode(self.app.cookingMode)
 
     def drawBoard(self, canvas):
@@ -877,7 +950,6 @@ class ShoppingMode(Mode):
 
             #reset img to be scale factor 
             canvas.create_image(x, y, image = ImageTk.PhotoImage(img)) 
-            #print(ingred)
                 #x, y = ingred[1][0], ingred[1][1]
                 #img = ingred[0][1]
                 #

@@ -52,7 +52,6 @@ def isRecipe(inventory, method, recipe):
     print(recipe[0])
     #check to see if every necessary ingredient is in your current inventory of ingredients
     for food in neededIngredients:
-        print(f'i need this ingredient: {food}')
         if food not in inventory:
             return False
     #you exit for loop only if you have every necessary ingredient
@@ -67,9 +66,9 @@ def isRecipe(inventory, method, recipe):
 def validCombination(basket, methods, firstLevelCookbook, secondLevelCookbook, thirdLevelCookbook):
     for cookbook in [firstLevelCookbook, secondLevelCookbook, thirdLevelCookbook]:
         for dish, recipe in cookbook.items():
-            if dish == 'mashedPotato':
-                if isRecipe(basket, methods, recipe):
-                    return dish #return the dish that it successfully creates 
+            #if dish == 'mashedPotato':
+            if isRecipe(basket, methods, recipe):
+                return dish #return the dish that it successfully creates 
     return None 
 def setUpCookbooks():
     #12/2 setting up recipes for food, simplified representations
@@ -146,6 +145,7 @@ def randomizeBasket(cookbook):
 #combinations starts off as an empty list (2D)
 #since each combination can be an ingredient in another level's recipe, keep calling recursively
 #until you've looked thru all possible cookbooks 
+
 def itemInRecipe(basket, cookbooks, combinations):
     if len(cookbooks)==0:
         return combinations 
@@ -238,7 +238,11 @@ class gameAI(Player):
         randomCookbook = random.randint(0, 2)
         #call recursive helper function to get all possible recipes from cookbooks
         possibilities = itemInRecipe(self.basket, self.cookbooks, combinations=[])
-        self.finalDish = random.choice(possibilities[randomCookbook])
+        tot = possibilities[randomCookbook]
+        if len(tot) == 0:
+            self.finalDish = 'mashedPotatoes'
+        else:
+            self.finalDish = random.choice(tot)
 
         #print(f'THIS IS FINAL DISH {self.finalDish}')
     #function to create list of appliances and ingredients game Ai needs to use in order to create final dish
@@ -247,6 +251,7 @@ class gameAI(Player):
         total = len(self.cookbooks)
         #loop thru list backwards
         for index in range(total-1, -1, -1):
+            print(index)
             recipe = returnRecipe(self.finalDish, self.cookbooks, index)
             if recipe != None:
                 #add a random appliance from this list of appliances
@@ -262,7 +267,12 @@ class gameAI(Player):
                     index -=1 
                 if index == 0: 
                     for baseIngred in recipe[0]:
+                        print(f'recipe is {recipe}')
+                        print('ur getting here!')
                         self.groceries.add(baseIngred)
+    #def generateGroceries(self):
+
+
                     #find base level ingredients
                             #search cookbook 
     #create any possible iterations of firstLevelCookbook from basket ingredients, which will be used
@@ -297,14 +307,8 @@ class gameAI(Player):
                 return recipe 
         else:
             return None 
-   
 
 
-"""
-combinations = []
-combinations = itemInRecipe(['potato', 'chicken', 'strawberry', 'egg'], cookbooks, combinations)
-print(f'this is combinations: {combinations}')
-"""
 #not getting to third cookbook
 #for some reason 
 
