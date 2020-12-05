@@ -477,7 +477,12 @@ class CookingMode(Mode):
         midY = (y0+y1)//2
 
         return midX, midY 
-    
+    #heavily based on code from PIL optional lecture, link: https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=4c852dc1-658a-42dc-a8c0-ac790004263c   
+    def findScaleFactor(self, image, goalWidth):
+        width, height = image.size 
+        scaleFactor = goalWidth / width 
+        return scaleFactor    
+
     #function to call drawCell and draw a table to contain the images it will need
     def drawInventoryTable(self, canvas):
         for row in range(self.invRows):
@@ -625,7 +630,7 @@ class JudgingMode(Mode):
 
         if event.key == 'o':
             self.gameAINum = web.recipeScraper(finalProduct)
-            print(self.gameAINum)
+            #rint(self.gameAINum)
         elif event.key == 'p':
             self.playerNum = web.recipeScraper(finalProduct)
     def drawPlayerInfo(self, canvas):
@@ -645,6 +650,7 @@ class JudgingMode(Mode):
         JudgingMode.drawGameAIInfo(self, canvas)
 
 class ShoppingMode(Mode):
+
     def appStarted(self):
         self.rows = 4
         self.cols = 4 
@@ -661,7 +667,8 @@ class ShoppingMode(Mode):
         for i in range(len(self.fridge)):
             name = self.fridge[i].name
             self.loadedImgList.append(ShoppingMode.getIngredientImg(self, name))
-
+        self.currentSelect = list() 
+        self.hand = list() 
     def getIngredientObject(self, ingredient):
         for Ingredient in self.Ingredients:
             if Ingredient.name == ingredient:
@@ -682,14 +689,14 @@ class ShoppingMode(Mode):
         
        #self.fridge = [self.cols * [None] for row in range(self.rows)]
         self.ingredientList = classes.ingredientList(self.cookbooks[0])
-        print(self.ingredientList)
+        #print(self.ingredientList)
     
         for i in range(self.rows*self.cols): 
             if i < len(list(self.ingredientList)):
                 ingredName = list(self.ingredientList)[i]
                 Ingredient = ShoppingMode.getIngredientObject(self, ingredName)
-                print(Ingredient)
-                print()
+                #print(Ingredient)
+                #print()
                 self.fridge.append(Ingredient)
         
         #print(self.fridge)
@@ -709,17 +716,31 @@ class ShoppingMode(Mode):
         midY = (y0+y1)//2
 
         return midX, midY 
+        #converts row, col to list 
+    def getIndex(self, row, col):
+        index = ((row * self.rows) + col)
+        return index 
     def mousePressed(self, event):
         #check if mouse is pressed within the grid 
-        
+        mouseX, mouseY = event.x, event.y
+        row, col = ShoppingMode.getCell(self, mouseX, mouseY)
+        if not (row, col) == (-1, -1):
+            #print('added!')
+            self.currentSelect.append((row, col))
+            index = ShoppingMode.getIndex(self, row, col)
+            self.hand.append(self.fridge[index])
+            
     def drawScreen(self, canvas):
         canvas.create_rectangle(0,0, self.width, self.height, fill = 'pink')
         canvas.create_text(self.width/2, self.height/8, text='GATHER YOUR INGREDIENTS!', font='Arial 26 bold')
         canvas.create_text(self.width/2, 6.7* self.height/8, text = 'You must create a dish incorporating these basket ingredients!')
+        canvas.create_text(self.width/2, 7*self.height/8, text = 'Press n to move on to cooking mode')
         canvas.create_text(self.width/2, 7.5*self.height/8, text=f'{self.basket}')
     def keyPressed(self, event):
         #go to next mode 
         if event.key == 'n':
+            #add all currently selected to your inventory 
+            print('successfulling clicking')
             self.app.setActiveMode(self.app.cookingMode)
 
     def drawBoard(self, canvas):
@@ -729,7 +750,15 @@ class ShoppingMode(Mode):
                 
     def drawCell(self,canvas, row, col, color):
         x0, y0, x1, y1 = ShoppingMode.getCellBounds(self, row, col)
-        canvas.create_rectangle(x0, y0, x1, y1, fill = color
+        #if box is currently selected, change outline
+        if (row, col) in self.currentSelect:
+            outline = 'red'
+            width = 3
+        else:
+            outline = 'gray'
+            width=1
+            
+        canvas.create_rectangle(x0, y0, x1, y1, fill = color, outline = outline, width = width
                                  )
 
     #heavily based on code from PIL optional lecture, link: https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=4c852dc1-658a-42dc-a8c0-ac790004263c   
@@ -768,6 +797,31 @@ class ShoppingMode(Mode):
         img = self.scaleImage(img, scaleFactor)
 
         return img #returns the loaded image to store in the list in inventory
+   #creds to https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
+    def pointInGrid(self, x, y):
+        # return True if (x, y) is inside the grid defined by app.
+        return ((self.margin <= x <= self.width-2*self.margin) and
+                (self.margin <= y <= self.height-2*self.margin))
+
+   #creds to https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
+    def getCell(self, x, y):
+        if not ShoppingMode.pointInGrid(self, x, y):
+            return (-1, -1)
+        # aka "viewToModel"
+        # return (row, col) in which (x, y) occurred or (-1, -1) if outside grid.
+        gridWidth  = self.width - 2*self.margin
+        gridHeight = self.height - 2*self.margin
+        cellWidth  = gridWidth / self.cols
+        cellHeight = gridHeight / self.rows
+
+        # Note: we have to use int() here and not just // because
+        # row and col cannot be floats and if any of x, y, app.margin,
+        # cellWidth or cellHeight are floats, // would still produce floats.
+        row = int((y - self.margin) / cellHeight)
+        col = int((x - self.margin) / cellWidth)
+
+        return (row, col)
+
     def redrawAll(self, canvas):
         ShoppingMode.drawScreen(self, canvas)
         ShoppingMode.drawBoard(self, canvas)
@@ -783,7 +837,7 @@ class ShoppingMode(Mode):
             ingred = self.fridge[ingredIndex] #returningredient object
             path = ingred.path
             row, col = ShoppingMode.getRowColFrom1D(self, self.fridge, ingredIndex)
-            print(f'{ingred}: {row, col}')
+            #print(f'{ingred}: {row, col}')
             x, y = ShoppingMode.getMidCell(self, row, col)
             
             #get loaded img from list 
