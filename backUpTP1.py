@@ -164,11 +164,12 @@ class CookingMode(Mode):
         #call helper function for list of moves it will need to take
         #self.moves = CookingMode.generatePath(self.oppRow, self.oppCol, self.goalRow, self.goalCol, [])
         self.moveNum = 0 
-
         self.charRow = self.rows-4
         self.charCol = 0
-        self.cookbooks, self.basket, self.Person, self.Opponent, self.Appliances, self.IngredientObjects = classes.setUpObjects()
-        
+        #self.app.cookingMode.finalDish
+        (self.cookbooks, self.basket, self.Person, self.Opponent, self.Appliances, self.IngredientObjects) = (self.app.shoppingMode.cookbooks, self.app.shoppingMode.basket, self.app.shoppingMode.Person,
+                                                                                    self.app.shoppingMode.Opponent, self.app.shoppingMode.Appliances, self.app.shoppingMode.Ingredients)
+
         self.invWidth = self.rightMargin - 2 * self.margin 
         self.invLength = self.height - self.bottomMargin 
         width = self.rightMargin - 2 * self.margin 
@@ -335,7 +336,6 @@ class CookingMode(Mode):
                 return ingredObject
 
     def timerFired(self):
-        CookingMode.placeImage(self)
         if self.waitTime ==-1:
             #moveNormally
             CookingMode.moveGameAI(self)
@@ -352,8 +352,8 @@ class CookingMode(Mode):
         #run combining methods if ingredients are successfully combined
         #if self.isCombine: 
         #    CookingMode.combineIngredients(self)
-
-            
+        CookingMode.placeImage(self)
+        CookingMode.displayImagesInInventory(self)         
     def moveGameAI(self):
         #only move if haven't reached goal state
         if not self.moveNum == len(self.moveList): 
@@ -493,10 +493,12 @@ class CookingMode(Mode):
         #this is the inventory that shows up on the screen, limit of 5
         self.displayInventory = [ [None, spot0], [None, spot1], [None, spot2], [None, spot3],
         [None, spot4] ]
+        CookingMode.displayImagesInInventory(self)
 
+    def displayImagesInInventory(self):
         for i in range(len(self.inventory)):
             name = self.inventory[i]
-            #if i < len(self.displayInventory) - 2:
+                #if i < len(self.displayInventory) - 2:
             loadedImg = CookingMode.getIngredientImg(self, name)
             self.displayInventory[i][0] = loadedImg 
 
@@ -905,8 +907,8 @@ class ShoppingMode(Mode):
    #creds to https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
     def pointInGrid(self, x, y):
         # return True if (x, y) is inside the grid defined by app.
-        return ((self.margin <= x <= self.width-2*self.margin) and
-                (self.margin <= y <= self.height-2*self.margin))
+        return ((self.margin <= x <= self.width-self.margin) and
+                (self.margin <= y <= self.height-self.margin))
 
    #creds to https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
     def getCell(self, x, y):
