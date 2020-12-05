@@ -46,13 +46,16 @@ class MyApp(App):
 
         else:
             return MyApp.generatePath(row0 + xDir, col0 + yDir, row1, col1, moveList)
+    #set up game AI properties for use throughout code
     def setUpGameAI(self):
         self.Opponent.randomizeFinalProduct()
         self.finalDish = self.Opponent.finalDish
         self.Opponent.generateApplianceAndGroceriesList()
         self.applianceList = self.Opponent.applianceList
-        self.groceries = self.Opponent.groceries
         self.moveList = list()
+        MyApp.gameAIPath(self)
+        print(f'this is MOVE LIST: {self.moveList}')
+        self.groceries = self.Opponent.groceries
         print(f'this is final dish: {self.finalDish}')
         print(f'this is final appliance list: {self.applianceList}')
         print(f'this is final gtoceries list: {self.groceries}')
@@ -61,23 +64,38 @@ class MyApp(App):
 
     #goes thru all the appliances the gameAI needs to reach
     def gameAIPath(self):
-        #appliances = self.Opponent.applianceList
-        for appliancesIndex in range(len(self.applianceList)):
-            appliance = appliances[applianceIndex]
-            #if starting at the list, start accumulating moves with the game Ai's initial starting row, col
-            if appliancesIndex == 0: 
-                row0, col0 = self.oppRow, self.oppCol
-                row1, col1 = self.appliancesDict[appliance][0], self.appliancesDict[appliance][1]
-            else:
+        appliances = self.applianceList
+        firstAppliance = appliances[0]
+        firstMoveList = list()
+        firstAppRow, firstAppCol = self.applianceDict[firstAppliance][0], self.applianceDict[firstAppliance][1]
+        #print(f'TESTING GAME AI PATH: {firstAppRow, firstAppCol}')
+        self.moveList+=(MyApp.generatePath(self.oppRow, self.oppCol, firstAppRow, firstAppCol, firstMoveList))
+        #go thru every pair:
+        for applianceIndex in range(len(appliances)):
+            if not applianceIndex == len(appliances)-1: #if not at the last index
+                appliance = appliances[applianceIndex]
                 nextAppliance = appliances[applianceIndex+1]
-                row0, col0 = self.appliancesDict[appliance][0], self.appliancesDict[appliance][1]
-                row1, col1 = self.appliancesDict[nextAppliance][0], self.appliancesDict[nextAppliance][1]
-            currentMoveList = list()
-            self.moveList.append(generatePath(row0, col0, row1, col1, currentMoveList))
+                row0, col0 = self.applianceDict[appliance][0], self.applianceDict[appliance][1]
+                row1, col1 = self.applianceDict[nextAppliance][0], self.applianceDict[nextAppliance][1]
+                #list to hold recursive results
+                currMoveList = list()
+                self.moveList+=(MyApp.generatePath(row0, col0, row1, col1, currMoveList))
+                self.moveList+=['stop']
+                applianceIndex+=1 
+            #if starting at the list, start accumulating moves with the game Ai's initial starting row, col
+            #if applianceIndex == 0: 
+            #    row0, col0 = self.oppRow, self.oppCol
+            #    row1, col1 = self.applianceDict[appliance][0], self.applianceDict[appliance][1]
+            #else:
+            #    nextAppliance = appliances[applianceIndex+1]
+            #    row0, col0 = self.applianceDict[appliance][0], self.applianceDict[appliance][1]
+            #    row1, col1 = self.applianceDict[nextAppliance][0], self.applianceDict[nextAppliance][1]
+            #currentMoveList = list()
+            #self.moveList+=(MyApp.generatePath(row0, col0, row1, col1, currentMoveList))
 
 
     def isLegal(self, row, col):
-        if self.board[row][col] != 'white':
+        if self.board[row][col] == 'white':
             return True
         else:
             return False  
@@ -130,23 +148,23 @@ class MyApp(App):
         self.margin = 20 # margin around grid
         self.bottomMargin = self.height//4
         self.rightMargin = self.width//4
-
-        #self.timerDelay = 250
+        
+        self.timerDelay = 250
         #taken from my HW7 Tetris homework
         #keep track which parts of board are filled
         self.board = [self.cols * ['white'] for row in range(self.rows)]
-
-        self.oppRow = 0 
+        self.waitTime = -1
+        self.oppRow = 4 
         self.oppCol = 0 
 
-        self.goalRow = 5
-        self.goalCol = 5 
+        #self.goalRow = 5
+        #self.goalCol = 5 
         #call helper function for list of moves it will need to take
-        self.moves = MyApp.generatePath(self.oppRow, self.oppCol, self.goalRow, self.goalCol, [])
+        #self.moves = MyApp.generatePath(self.oppRow, self.oppCol, self.goalRow, self.goalCol, [])
         self.moveNum = 0 
 
-        self.charRow = self.rows-1
-        self.charCol = self.cols - 1 
+        self.charRow = self.rows-4
+        self.charCol = 0
         self.cookbooks, self.basket, self.Person, self.Opponent, self.Appliances, self.Ingredients = classes.setUpObjects()
         
         self.invWidth = self.rightMargin - 2 * self.margin 
@@ -172,7 +190,7 @@ class MyApp(App):
         self.outlineRowCol = list()
         self.currentAppliance = ''
         MyApp.setUpGameAI(self)
-
+        
         self.basket = classes.randomizeBasket(self.cookbooks[0])
 
     def convertMoveToAppliance(self):
@@ -231,10 +249,22 @@ class MyApp(App):
 
 
     def keyPressed(self, event):
-        if event.key =='Up': self.charRow -=1
-        elif event.key == 'Down': self.charRow += 1
-        elif event.key == 'Left': self.charCol-= 1 
-        elif event.key == 'Right': self.charCol += 1
+        if event.key =='Up': 
+            if MyApp.isLegal(self, self.charRow -1, self.charCol):
+                self.charRow -=1 
+            else:
+                print('NOT HERE')
+        elif event.key == 'Down': 
+            if MyApp.isLegal(self, self.charRow +1, self.charCol):
+                self.charRow += 1
+            else:
+                print('nah')
+        elif event.key == 'Left': 
+            if MyApp.isLegal(self, self.charRow, self.charCol-1):
+                self.charCol-= 1 
+        elif event.key == 'Right': 
+            if MyApp.isLegal(self, self.charRow, self.charCol+1):
+                self.charCol += 1
         elif event.key == 'c':
             if self.isApplianceScreen:
                 #self.isCombine = True
@@ -267,14 +297,21 @@ class MyApp(App):
             secondIngredObj.append(MyApp.getIngredientObject(self, otherIngred))
         combination = firstIngredObj.combine(secondIngredObj, 'saute')
         return combination
-        #print(ingredientNames)
+        #print(ingredientNames)s
     def getIngredientObject(self, ingredient):
         for Ingredient in self.Ingredients:
             if Ingredient.name == ingredient:
                 return Ingredient 
 
     def timerFired(self):
-        MyApp.moveGameAI(self)
+        if self.waitTime ==-1:
+            #moveNormally
+            MyApp.moveGameAI(self)
+        elif self.waitTime ==0:
+            self.moveNum +=1
+            MyApp.moveGameAI(self)
+        else: #don't move 
+            self.waitTime -=100
         if self.pantryTimer>=0:
             self.pantryTimer -=100
         else:
@@ -287,12 +324,17 @@ class MyApp(App):
             
     def moveGameAI(self):
         #only move if haven't reached goal state
-        if not self.moveNum == len(self.moves) -1: 
-            currMove = self.moves[0]
-            self.oppRow += currMove[0]
-            self.oppCol += currMove[1]
-            self.moveNum += 1
-        
+        if not self.moveNum == len(self.moveList) -1: 
+            print(f'THIS IS moveLIST IN MOVE GAME AI: {self.moveList}')
+            if not self.moveList == None:
+                currMove = self.moveList[self.moveNum]
+                if currMove == 'stop':
+                    self.waitTime = 500
+                else:
+                    self.oppRow += currMove[0]
+                    self.oppCol += currMove[1]
+                    self.moveNum += 1
+            
 
     # getCellBounds from grid-demo.py
     def getCellBounds(self, row, col):

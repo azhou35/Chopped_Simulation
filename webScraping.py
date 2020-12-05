@@ -1,6 +1,10 @@
 #webScraping code
 #import modules
 from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+
 from selenium.webdriver.common.keys import Keys
 import time
 #function to go thru every ingred in final Product 
@@ -36,15 +40,27 @@ def recipeScraper(finalProduct):
     #print('click successful')
     #click search button to search
     time.sleep(5)
-    searchButton = '//*[@id="mainApp"]/div[1]/div[3]/div/div/div/div[3]/button[1]'
+    searchButton = '//html//body//div[3]//div[1]//div[5]//div//div[1]//div//div[3]//button[1]'
+    
     #findSearchButton = driver.find_element_by_class_name("button search-submit-button btn-primary")
-    driver.switch_to.frame(frame)
+    #driver.switch_to.frame(frame)
     
-    searchClass = driver.find_element_by_class_name("button search-submit-button btn-primary")
-    
-    clickSearchButton = searchClass.click()
+    #searchClass = driver.find_element_by_class_name("button search-submit-button btn-primary")
+    findSearchButton = driver.find_element_by_xpath(searchButton)
+    #try without xPath 
+    #find all the search buttons 
+    #find the right index 
+    #find all elements of "search Button"
+    #hard code and click the right
+    #WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, searchButton))).click()
+    clickSearchButton = findSearchButton.click()
+    #frame = driver.find_element_by_xpath('//frame[@name="main"]')
+    #driver.switch_to.frame(frame)
+    #findSearchButton = driver.find_element_by_class_name("button search-submit-button btn-primary")
 
-    time.sleep(10)
+#    clickSearchButton = findSearchButton.click()
+
+    time.sleep(15)
 
     recipesResult = '//*[@id="mainApp"]/div[1]/div[3]/div/div[2]/section[1]/h4'
     findRecipesResult = driver.find_element_by_xpath(recipesResult)

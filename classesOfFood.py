@@ -216,14 +216,12 @@ class gameAI(Player):
  
     #function for gameAI to choose which final Product to make based on basket
     def randomizeFinalProduct(self):
-        randomCookbook = random.randint(0, 3)
+        randomCookbook = random.randint(0, 2)
         #call recursive helper function to get all possible recipes from cookbooks
         possibilities = itemInRecipe(self.basket, self.cookbooks, combinations=[])
-        try:
-            self.finalDish = random.choice(possibilities[randomCookbook])
-        except:
-            self.finalDish = random.choice(possibilities[randomCookbook])
-        print(f'THIS IS FINAL DISH {self.finalDish}')
+        self.finalDish = random.choice(possibilities[randomCookbook])
+
+        #print(f'THIS IS FINAL DISH {self.finalDish}')
     #function to create list of appliances and ingredients game Ai needs to use in order to create final dish
     def generateApplianceAndGroceriesList(self):
         #find recipe
