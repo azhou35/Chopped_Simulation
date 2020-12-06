@@ -227,8 +227,6 @@ class Staples(object):
         #call helper function to see if this combination of ingredients can create anything
         #self.totalIngredients = [self.name]
         #self.totalIngredients += listOfOtherIngredients 
-        print(f'this is total ingredients: {self.totalIngredients}')
-        print(method)
         combination = validCombination(self.totalIngredients, method, Staples.cookbooks[0], Staples.cookbooks[1], Staples.cookbooks[2])
         #combination is either none or the dish that it creates
         if combination != None:

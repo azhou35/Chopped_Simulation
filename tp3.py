@@ -8,7 +8,8 @@ from cmu_112_graphics import *
 #my own files
 import classesOfFood as classes 
 import webScraping as web
-
+#CITATION: RANDOM MODULE FROM https://docs.python.org/3/library/random.html
+import random
 #cooking mode class with user control
 #CITATION: MODAL CODE FRAMEWORK CREDS TO: https://www.cs.cmu.edu/~112/notes/notes-animations-part3.html
 class CookingMode(Mode):
@@ -59,6 +60,7 @@ class CookingMode(Mode):
         appliances = self.applianceList
         firstAppliance = appliances[0]
         firstMoveList = list()
+        #print(f'THIS IS ACCESS {self.accessPoints} and THIS IS THE FIRST ONE {self.accessPoints[firstAppliance][0]}')
         firstAppRow, firstAppCol = self.accessPoints[firstAppliance][0], self.accessPoints[firstAppliance][1]
         self.moveList+=(CookingMode.generatePath(self.oppRow, self.oppCol, firstAppRow, firstAppCol, firstMoveList))
         #add arbitrary number to indicate wait time 
@@ -121,7 +123,6 @@ class CookingMode(Mode):
             currLocation = list((row, col))
             for appliance, location in self.applianceDict.items():
                 if location == currLocation:
-                    #print('ur getting here')
                     self.currentAppliance = appliance
                     #print(self.currentAppliance)
             self.isApplianceScreen = True 
@@ -171,8 +172,8 @@ class CookingMode(Mode):
         self.charRow = self.rows-4
         self.charCol = 0
         #self.app.cookingMode.finalDish
-        (self.cookbooks, self.basket, self.Person, self.Opponent, self.Appliances, self.IngredientObjects) = (self.app.shoppingMode.cookbooks, self.app.shoppingMode.basket, self.app.shoppingMode.Person,
-                                                                                    self.app.shoppingMode.Opponent, self.app.shoppingMode.Appliances, self.app.shoppingMode.Ingredients)
+        (self.cookbooks, self.basket, self.Person, self.Opponent, self.Appliances, self.IngredientObjects) = (self.app.basketMode.cookbooks, self.app.basketMode.basket, self.app.basketMode.Person,
+                                                                                    self.app.basketMode.Opponent, self.app.basketMode.Appliances, self.app.basketMode.Ingredients)
 
         self.invWidth = self.rightMargin - 2 * self.margin 
         self.invLength = self.height - self.bottomMargin 
@@ -194,11 +195,12 @@ class CookingMode(Mode):
         self.currentSelect = list()
         self.ingredientHistory = list()
         CookingMode.setUpInventory(self)
-        CookingMode.setUpAppliances(self)
+        #CookingMode.setUpAppliances(self)
+        CookingMode.randomizeAppliances(self)
         self.outlineRowCol = list()
         CookingMode.setUpGameAI(self)
         CookingMode.placeImage(self)
-        self.basket = classes.randomizeBasket(self.cookbooks[0])
+        #self.basket = classes.randomizeBasket(self.cookbooks[0])
         self.playerFinalDish = ''
         self.complexity = 0 
         self.recipeCounter = 0
@@ -226,6 +228,81 @@ class CookingMode(Mode):
             else:
                 color = 'gray'
             self.board[row][col] = color
+    #place appliances on board
+    def placeAppliance(self, length, startingPoint, side, orientation, appliance):
+        tableLocation = list()
+        applianceLocation = list()
+        accessPoint = list()
+
+        if orientation == 'vert':
+            row = startingPoint
+            col = side #stays constant
+        else: 
+            col = startingPoint
+            row = side #stays constant 
+        
+
+        for i in range(length):
+            #check orientation for which way it moves
+            if orientation == 'vert':
+                if i!=0:
+                    row += 1 #add by whichever part of the appliance you're on
+            else: 
+                if i!=0:
+                    col += 1
+#first check if there's not something already in the path, otherwise, return false
+            if self.board[row][col] != 'white':
+                return False 
+            applianceLocation = [row, col] #set current row, col applicane location
+            #this is appliance location!
+            if i == 5//2:
+                color = 'pink'
+                if side == 0: #this means its on top or on left, meaning u should either increase  
+                    if orientation == 'vert': 
+                        accessPoint = [row, col+1]
+                    else:
+                        accessPoint= [row+1, col]
+                #self.applianceLocation[appliance] = [row, col]
+                else: #this means its on right or bottom, so u need to be either to the left or above 
+                    if orientation == 'vert': 
+                        accessPoint = [row, col-1]
+                    else:
+                        accessPoint = [row-1, col]
+            else: 
+                color = 'gray'
+    #only add items if everything is ok and legal!
+            tableLocation.append([(row, col), color])
+        for item in tableLocation:
+            #print(item)
+            self.board[item[0][0]][item[0][1]] = item[1]
+        self.accessPoints[appliance] = accessPoint
+        self.applianceDict[appliance] = applianceLocation
+        print(f'this is access points{self.accessPoints}')
+
+        return True 
+
+    def generateRandom(self, appliances, length): 
+        orientation = random.choice(['hor', 'vert'])
+        #top or bottom / left or right
+        side = random.choice([0, self.cols-1])
+            #randomize starting point
+        startingPoint = random.randint(0, self.cols - length - 1) #ending opint is so it doesnt go past the end of the board
+        return orientation, side, startingPoint
+
+    #function to randomly place appliances on different areas on the board! 
+    def randomizeAppliances(self):
+        appliances = ['whisk', 'bake', 'blend', 'saute', 'stack']
+        #randomly choose if vertical or horizontal
+        length = 5
+        self.accessPoints = dict()
+        self.applianceDict = dict()
+        isLegal = False
+        for i in range(len(appliances)):
+            #should keep redoing this until you get a legal appliance setting :^))) 
+            #inspo for randomization from snake https://www.cs.cmu.edu/~112/notes/notes-animations-part2.html
+            while isLegal == False:  
+                orientation, side, startingPoint = CookingMode.generateRandom(self, appliances, length)
+                isLegal = CookingMode.placeAppliance(self, length, startingPoint, side, orientation, appliances[i])
     
     def setUpAppliances(self):
         self.accessPoints = { 'mix': [1, 3], 
@@ -341,7 +418,8 @@ class CookingMode(Mode):
         #if self.isCombine: 
         #    CookingMode.combineIngredients(self)
         CookingMode.placeImage(self)
-        CookingMode.displayImagesInInventory(self)         
+        CookingMode.displayImagesInInventory(self)    
+
     def moveGameAI(self):
         #only move if haven't reached goal state
         if not self.moveNum == len(self.moveList): 
@@ -649,6 +727,7 @@ class CookingMode(Mode):
         CookingMode.drawGameAI(self, canvas)
         CookingMode.drawPlayer(self, canvas)
         #CookingMode.setUpAppliances(self, canvas)
+        CookingMode.randomizeAppliances(self, canvas)
         CookingMode.drawInventoryScreen(self, canvas)
         CookingMode.drawInventoryTable(self, canvas)
         CookingMode.drawTimer(self, canvas)
@@ -762,7 +841,7 @@ class ShoppingMode(Mode):
         self.shelf = self.loadImage(shelfPath)
 
     def getIngredientObject(self, ingredient):
-        for Ingredient in self.Ingredients:
+        for Ingredient in self.IngredientObjects:
             if Ingredient.name == ingredient:
                 return Ingredient 
     def setUpFridge(self):
@@ -775,7 +854,9 @@ class ShoppingMode(Mode):
                 currCol.append(['lightgray', None, location])
             self.board.append(currCol)
 """
-        self.cookbooks, self.basket, self.Person, self.Opponent, self.Appliances, self.Ingredients = classes.setUpObjects()
+        (self.cookbooks, self.basket, self.Person, self.Opponent, self.Appliances, self.IngredientObjects) = (self.app.basketMode.cookbooks, self.app.basketMode.basket, self.app.basketMode.Person,
+                                                                                    self.app.basketMode.Opponent, self.app.basketMode.Appliances, self.app.basketMode.Ingredients)
+
         self.shoppingCart+= self.basket 
         
        #self.fridge = [self.cols * [None] for row in range(self.rows)]
@@ -956,7 +1037,8 @@ class TitleMode(Mode):
         
     def keyPressed(self, event):
         if event.key == 'Space':
-            self.app.setActiveMode(self.app.shoppingMode)
+            self.app.setActiveMode(self.app.basketMode)
+            
 
     
     def drawTitleScreen(self, canvas):
@@ -969,6 +1051,60 @@ class TitleMode(Mode):
     def redrawAll(self, canvas):
         TitleMode.drawTitleScreen(self, canvas)
 
+class BasketMode(Mode):
+    def appStarted(self):
+        #call your ingedients!! EVERYTHING MUST REFEENCE HERE FO INITIAL BASKET CALL! 
+        self.cookbooks, self.basket, self.Person, self.Opponent, self.Appliances, self.Ingredients = classes.setUpObjects()
+        #call its basket function
+        self.basket = classes.randomizeBasket(self.cookbooks[0])
+        self.isDisplayBasket = False
+        #CITATION: self created on canva
+        self.screenPath = '/Users/az/Documents/GitHub/Chopped_Simulation/images/basketScreen.png'
+        self.screenImg = self.loadImage(self.screenPath)
+        self.basketLoadedIngredients = list()
+        BasketMode.loadBasketIngreds(self)
+    def keyPressed(self, event):
+        if event.key == 'Space':
+            self.isDisplayBasket = True
+        elif event.key == 'n':
+            self.app.setActiveMode(self.app.shoppingMode)
+
+    def getIngredientObject(self, item):
+        for Ingredient in self.Ingredients:
+            if Ingredient.name == item:
+                return Ingredient 
+    
+    def loadBasketIngreds(self):
+        for item in self.basket:
+            ingredObject = BasketMode.getIngredientObject(self, item)
+            path = ingredObject.path 
+            self.ingredImg = self.loadImage(path)
+            #print(self.ingredImg)
+            self.scaledImg = self.scaleImage(self.ingredImg, self.width/6)
+            self.basketLoadedIngredients.append(self.scaledImg)
+
+    def drawScreen(self,canvas):
+        canvas.create_rectangle(0,0, self.width, self.height, fill = 'pink')
+        canvas.create_image(self.width/2, self.height/2, image = ImageTk.PhotoImage(self.screenImg))
+    #function to go thru basket loaded images and draw it 
+    def drawBasket(self, canvas):
+        #for item in self.basket:
+     
+        canvas.create_image(self.width/4, self.height/2, image = ImageTk.PhotoImage(self.basketLoadedIngredients[0]))
+        canvas.create_image(3*self.width/4, self.height/2, image = ImageTk.PhotoImage(self.basketLoadedIngredients[1]))
+
+    """
+       i = 0 
+        gap = self.width/3
+        for item in self.basketLoadedIngredients:
+            x  = gap + i*gap
+    """
+    def redrawAll(self, canvas):
+        BasketMode.drawScreen(self, canvas)
+        BasketMode.drawBasket(self, canvas)
+        
+
+
 class MyModalApp(ModalApp):
     def appStarted(app):
         app.titleMode = TitleMode()
@@ -976,12 +1112,9 @@ class MyModalApp(ModalApp):
         app.cookingMode = CookingMode()
         app.judgingMode = JudgingMode()
         app.setActiveMode(app.titleMode)
+        app.basketMode = BasketMode()
+        #app.timerDelay = 500
 
-        app.timerDelay = 500
-#modal app code from https://www.cs.cmu.edu/~112/notes/notes-animations-part3.html#subclassingModalApp
-class InstructionsMode(Mode):
-    def appStarted(self):
-        return
 app = MyModalApp(width = 600, height = 600)
 
 
