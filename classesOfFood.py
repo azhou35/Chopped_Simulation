@@ -1,3 +1,31 @@
+"""
+urls for ingredient pictures: 
+gloop: https://www.google.com/url?sa=i&url=https%3A%2F%2Fwebkinznewz.ganzworld.com%2Fkinzapedia%2Fgrey-gunk%2F&psig=AOvVaw0xGXNjNZmbde659N33rnrC&ust=1607230286513000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCLDb7oKNtu0CFQAAAAAdAAAAABAD
+mashedpotato: https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.vhv.rs%2Fviewpic%2FxTxJo_mashed-potatoes-png-transparent-png%2F&psig=AOvVaw2TFOMm8H565iLkufwxuV_Z&ust=1607257588102000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCJCR7J_rtu0CFQAAAAAdAAAAABAD
+strawberrypurre: https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.indiamart.com%2Fshreeganeshfrozenfoods%2Fstrawberry-puree.html&psig=AOvVaw3zmSrfvPoKo-XS0iT9Txf2&ust=1607257616907000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCOi09azrtu0CFQAAAAAdAAAAABAJ
+toast: https://www.google.com/url?sa=i&url=http%3A%2F%2Fwww.pngmart.com%2Fimage%2F63292&psig=AOvVaw18Okilq4CyWY17QjqHhZ18&ust=1607257638632000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCMCYxrfrtu0CFQAAAAAdAAAAABAJ
+lettuce: https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.stickpng.com%2Fimg%2Ffood%2Fvegetables%2Fsalads%2Flettuce&psig=AOvVaw1pFglCkFgmEYQ1XM9qqbDu&ust=1607240498363000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCJjrpsqrtu0CFQAAAAAdAAAAABA7
+onion: https://www.google.com/url?sa=i&url=http%3A%2F%2Fwww.pngplay.com%2Fimage%2Ftag%2Fonion&psig=AOvVaw0PjL04_NYYaA-yAdaP2TID&ust=1607240551454000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCPiExuOrtu0CFQAAAAAdAAAAABAJ
+flour: https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.stickpng.com%2Fimg%2Ffood%2Fwheat%2Fbag-of-wheat-flour-and-spikes&psig=AOvVaw3RH_XNGYN7cQXzLg_8TSZW&ust=1607240583239000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCOiqmfOrtu0CFQAAAAAdAAAAABAD
+strawberry: https://www.google.com/url?sa=i&url=http%3A%2F%2Fwww.pngall.com%2Fstrawberry-png&psig=AOvVaw1f2lmFJ4lX0eVi_hCqmzuE&ust=1607240606993000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCNDzjP6rtu0CFQAAAAAdAAAAABAD
+fish: https://www.google.com/url?sa=i&url=https%3A%2F%2Fpngimg.com%2Fdownload%2F25154&psig=AOvVaw05uY6F3MmDkig957US0zN9&ust=1607240628502000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCPjI1Y6stu0CFQAAAAAdAAAAABAD
+cheese: https://www.google.com/url?sa=i&url=http%3A%2F%2Fpngimg.com%2Fdownload%2F25300&psig=AOvVaw0v6j1UdZo_wr-P_3VKfd_U&ust=1607240658505000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCLik3pastu0CFQAAAAAdAAAAABAD
+chicken: https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.pinterest.com%2Fpin%2F333547916147088172%2F&psig=AOvVaw3zVLtseIbESCMg84-5mOJj&ust=1607240687634000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCOCQ0qSstu0CFQAAAAAdAAAAABAD
+tomato: https://www.google.com/url?sa=i&url=http%3A%2F%2Fpngimg.com%2Fdownload%2F12599&psig=AOvVaw27hN9DoWGMlZ6T4wpv-J9G&ust=1607240712736000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCOi9rLCstu0CFQAAAAAdAAAAABAD
+kale: https://www.google.com/url?sa=i&url=http%3A%2F%2Fwww.pngmart.com%2Fimage%2F63334&psig=AOvVaw0ayPU227dlE3kQg1icqPHA&ust=1607240735508000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCKiD3bustu0CFQAAAAAdAAAAABAD
+rice: https://www.google.com/url?sa=i&url=http%3A%2F%2Fwww.pngmart.com%2Fimage%2F56414&psig=AOvVaw18jHB7u8FkI0ClT7YuRn4T&ust=1607240761721000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCLj5_8estu0CFQAAAAAdAAAAABAa
+sugar:
+https://www.google.com/url?sa=i&url=http%3A%2F%2Fpngimg.com%2Fimgs%2Ffood%2Fsugar%2F&psig=AOvVaw0NGOf6hkpibZbYIHi__Psb&ust=1607240807187000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCPjqrd2stu0CFQAAAAAdAAAAABAD
+bread: https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.pngfind.com%2Fmpng%2FTTRooT_bread-png-image-fresh-bread-transparent-png%2F&psig=AOvVaw33zp9P48pFPyTYVWXKJCVF&ust=1607240826488000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCJCo-eastu0CFQAAAAAdAAAAABAJ
+bagel: https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.freepngs.com%2Fbagel-pngs&psig=AOvVaw2WGHJgEgTiV6vQWmyhKiiY&ust=1607240857974000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCOjX-PWstu0CFQAAAAAdAAAAABAT
+egg: https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.pngwing.com%2Fen%2Fsearch%3Fq%3Dsmall%2BEggs&psig=AOvVaw0FA1IGqzXOQfJT0wVMTgzN&ust=1607241131228000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCNils_ittu0CFQAAAAAdAAAAABAf
+potato:https://www.google.com/url?sa=i&url=https%3A%2F%2Ffreepngimg.com%2Fpng%2F821-potato-png-images-pictures-download&psig=AOvVaw3JzMQKgLWZRc9lz43BHgpE&ust=1607288315081000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCJCHueDdt-0CFQAAAAAdAAAAABAX
+milk: https://www.google.com/url?sa=i&url=http%3A%2F%2Fclipart-library.com%2Fclip-art%2Fmilk-clipart-transparent-1.htm&psig=AOvVaw17-UNVTR1IbBucD_kL9Z3E&ust=1607288271983000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCPC0kcndt-0CFQAAAAAdAAAAABAD
+butter: https://www.google.com/url?sa=i&url=http%3A%2F%2Fpngimg.com%2Fdownload%2F20898&psig=AOvVaw3xKstHS0PdTGJdLCkJvJhi&ust=1607288352477000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCOCj5Ozdt-0CFQAAAAAdAAAAABAD
+"""
+
+#CITATION: how to set up classes taken from https://www.cs.cmu.edu/~112/notes/notes-oop-part2.html
+#CITATION: RANDOM MODULE FROM https://docs.python.org/3/library/random.html
 import random
 
 
@@ -213,6 +241,7 @@ class Staples(object):
                 else: 
                     uniqueCombo = f'{uniqueCombo} + {ingred}'
             return uniqueCombo
+    
     #code taken from https://www.cs.cmu.edu/~112/notes/notes-oop-part3.html
     def __repr__(self):
         return f'{self.name}'
@@ -244,7 +273,6 @@ class gameAI(Player):
         else:
             self.finalDish = random.choice(tot)
 
-        #print(f'THIS IS FINAL DISH {self.finalDish}')
     #function to create list of appliances and ingredients game Ai needs to use in order to create final dish
     def generateApplianceAndGroceriesList(self):
         #find recipe

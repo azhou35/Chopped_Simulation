@@ -1,23 +1,18 @@
-#TO DO BY TOMRROW: 
-#ANIMATE GAME AI to go thru the necessary path! 
-#BE ABLE TO "COMBINE" ingredients into AN APPLIANCE
-    #HARDCODE SOME IDEAL COMBINATIONS
-    #add to a list that keeps track of ignredients 
-    #maybe scale down on number of basket ingredients to just one
+#CITATION: CMU GRAPHICS FRAMEWORK CREDS TO: https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
+#this includes CMU Graphics file, so functions like "appStarted" and such
+#TP 3: work on ui: which one is player, which one is game ai, kitchen appliances
+#make it more explicit how to combine ingredients 
 
-#DO WEBSCRAPING
-    #access the properties of a website
-    #find the ingredients
 
-    #back up plan: look up those ingredients in google and see how mny hits you get back
-#draw screen where it presents the final product 
 from cmu_112_graphics import *
+#my own files
 import classesOfFood as classes 
 import webScraping as web
-#recurisve function to get from row, col A to row, col B
 
+#cooking mode class with user control
+#CITATION: MODAL CODE FRAMEWORK CREDS TO: https://www.cs.cmu.edu/~112/notes/notes-animations-part3.html
 class CookingMode(Mode):
-    #recursive game ai function 
+    #recurisve game AI function to get from row, col A to row, col B
     def generatePath(row0, col0, row1, col1, moveList):
         xDir = 0
         yDir = 0
@@ -33,9 +28,6 @@ class CookingMode(Mode):
         #chck if avatar needs to move right 
         if (row1-row0 >0): xDir = 1 
         else: xDir = -1
-        #TO DO: NEED TO CHECK IF IT"S LEGAL 
-        #is this backtracking? 
-
         #default move is to keep on moving diagonally until either 
         #your row0 matches row1 or col0 value matches with col1, 
         #in that case you just move in that lateral direction
@@ -61,7 +53,6 @@ class CookingMode(Mode):
         self.moveList = list()
         CookingMode.gameAIPath(self)
         self.groceries = self.Opponent.groceries
-        print(f'GROCERIESSS {self.groceries}')
         #print(f'this is FINAL DISH: {finalDish}')
 
     #goes thru all the appliances the gameAI needs to reach
@@ -77,8 +68,6 @@ class CookingMode(Mode):
             nextAppliance = appliances[applianceIndex+1]
             row0, col0 = self.accessPoints[appliance][0], self.accessPoints[appliance][1]
             row1, col1 = self.accessPoints[nextAppliance][0], self.accessPoints[nextAppliance][1]
-            #print(f'this is {row1, col1}')
-            #list to hold recursive results
             currMoveList = list()
             self.moveList+=(CookingMode.generatePath(row0, col0, row1, col1, currMoveList))
                 #self.moveList+=['stop']
@@ -100,7 +89,8 @@ class CookingMode(Mode):
 
     def isLegal(self, row, col):
         if self.board[row][col] == 'white':
-            return True
+            if not (self.oppRow == row and self.oppCol == col): 
+                return True
         else:
             return False  
     #oveList = list()
@@ -114,8 +104,6 @@ class CookingMode(Mode):
             (row, col) = CookingMode.getCell(self, mouseX, mouseY)
             currLocation = list((row, col))
             for appliance, location in self.applianceDict.items():
-                #print(f'this is cURRENT LOCATION: {currLocation}')
-                #print(location)
                 if location == currLocation:
                     #print('ur getting here')
                     self.currentAppliance = appliance
@@ -227,14 +215,12 @@ class CookingMode(Mode):
         'blend': [7, 13],
         'saute': [13, 9],
         'stack': [13, 3]
-        #'PLATING': [7, 0],
         }
         self.applianceDict = { 'mix': [0, 3], 
         'bake': [0, 9], 
         'blend': [7, 14],
         'saute': [14, 9],
         'stack': [14, 3]
-        #'PLATING': [7, 0],
         }
 
         CookingMode.setHorizontal(self, 5, 0, 0,'whisk')
@@ -244,20 +230,7 @@ class CookingMode(Mode):
         #CookingMode.setVertical(self, 5, 4, 0, 'plating')
         CookingMode.setVertical(self, 5, 4, self.cols-1, 'stack')
 
-
-#            for i in range(Appliance.cellsInLength):
-#                row = gap * applianceCount + i 
-#                col = (self.cols//2 - Appliance.cellsInLength//2) + i 
-#                if i == Appliance.cellsInLength//2:
-#                    color = 'pink'
-#                else:
-#                    color = 'gray' 
-
-#                self.board[row][col] = color
-#            applianceCount +=1     
-
-
-
+    
     def keyPressed(self, event):
         if event.key =='Up': 
             if CookingMode.isLegal(self, self.charRow -1, self.charCol):
@@ -288,6 +261,7 @@ class CookingMode(Mode):
             self.combination = ''
         #this is where the loaded List might function differently, so call here
         CookingMode.placeImage(self)
+#CITATION: convertMilli and drawTimer code based off of https://stackoverflow.com/questions/35989666/convert-milliseconds-to-hours-min-and-seconds-python
     def convertMilli(self, milli):
         seconds=(milli//1000)%60
         minutes=(milli//(1000*60))%60
@@ -301,6 +275,7 @@ class CookingMode(Mode):
             seconds = '0' + str(seconds)
         canvas.create_text(7* self.width/8, self.height/8, text = f'Time Left: {minutes}:{seconds}')
 
+    #function to combine ingredients in current select using object properties
     def combineIngredients(self):
         ingredientNames = []
         #print(f'this is current select: {self.currentSelect}')
@@ -317,17 +292,7 @@ class CookingMode(Mode):
         secondIngred = ingredientNames[1:]
         combination = firstIngred.combine(secondIngred, self.currentAppliance)
         return combination
-        """
-        firstIngred = ingredientNames[0]
-        secondIngred = ingredientNames[1:]
-        secondIngredObj = list()
-        firstIngredObj = CookingMode.getIngredientObject(self, firstIngred)
-        for otherIngred in secondIngred:
-            secondIngredObj.append(CookingMode.getIngredientObject(self, otherIngred))
-        combination = firstIngredObj.combine(secondIngredObj, 'saute')
-        return combination
-        """
-        #print(ingredientNames)s
+        
     def getIngredientObject(self, ingredient):
         for ingredObject in self.IngredientObjects:
             if ingredObject.name == ingredient:
@@ -369,14 +334,14 @@ class CookingMode(Mode):
             
 
     # getCellBounds from grid-demo.py
-    #creds to https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
+    #CITATION: CREDS to https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
     def getCellBounds(self, row, col):
         x0 = self.margin + self.gridWidth * col / self.cols
         x1 = self.margin + self.gridWidth * (col+1) / self.cols
         y0 = self.margin + self.gridHeight * row / self.rows
         y1 = self.margin + self.gridHeight * (row+1) / self.rows
         return (x0, y0, x1, y1)
-   #creds to https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
+   #CITATION: CREDS to https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
     def getCell(self, x, y):
         # aka "viewToModel"
         # return (row, col) in which (x, y) occurred or (-1, -1) if outside grid.
@@ -392,7 +357,7 @@ class CookingMode(Mode):
         col = int((x - self.margin) / self.cellWidth)
 
         return (row, col)
-    #based off of https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
+    #CITATION: CREDS to https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
     def getInvCell(self, x, y):
         if (not CookingMode.pointInInvGrid(self, x, y)):
             return (-1, -1)
@@ -416,7 +381,7 @@ class CookingMode(Mode):
         
         return (row, col)
 
-    # getCellBounds from grid-demo.py
+#CITATION: CREDS getCellBounds from grid-demo.py, CREDS to https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
     def getInvCellBounds(self, row, col):
         xStart = self.width - self.rightMargin + self.margin
         yStart = self.height/5
@@ -448,7 +413,11 @@ class CookingMode(Mode):
         if Ingredient != None:
             path = Ingredient.path
         else:
+            #if havent set up image for this, set default "gunk" image
             path = '/Users/az/Documents/GitHub/Chopped_Simulation/images/gunk.png'
+        
+#CITATION: ALL IMAGE LOADING CODE TAKEN FROM PIL OPTION LECTURE https://scs.hosted.panopto.com/Panopto/Pages/Auth/Login.aspx
+#https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
         img = self.loadImage(path)
         scaleFactor = CookingMode.findScaleFactor(self, img, goalWidth)
         img = self.scaleImage(img, scaleFactor)
@@ -459,21 +428,7 @@ class CookingMode(Mode):
         self.invCols = 1 
         self.invRows = 5
         self.inventoryPage = [self.invCols * [None] for row in range(self.rows)]
-        #self.inventory = list()
-        #self.inventory.append(classes.Potato)
-        #write this into a function
-        """
 
-        potatoPath = '/Users/az/Documents/GitHub/Chopped_Simulation/images/potato.png'
-        potato = self.loadImage(potatoPath)
-        scaleFactor1 = CookingMode.findScaleFactor(self, potato, goalWidth)
-        potato = self.scaleImage(potato, scaleFactor1)
-
-        milkPath = '/Users/az/Documents/GitHub/Chopped_Simulation/images/milk.png'
-        milk = self.loadImage(milkPath)
-        scaleFactor2 = CookingMode.findScaleFactor(self, milk, goalWidth)
-        milk = self.scaleImage(milk, scaleFactor2)
-"""
         spot0 = CookingMode.getMidCell(self, 0, 0)
         spot1 = CookingMode.getMidCell(self, 1, 0)
         spot2 = CookingMode.getMidCell(self, 2, 0)
@@ -527,7 +482,7 @@ class CookingMode(Mode):
         for row in range(self.invRows):
             for col in range(self.invCols):
                 CookingMode.drawInvCell(self, canvas, row, col, 'lightgray')
-
+#CITATION: DRAW CELL CODE FROM
     def drawInvCell(self,canvas, row, col, color):
         if (row, col) in self.outlineRowCol:
             outline = 'red'
@@ -576,7 +531,7 @@ class CookingMode(Mode):
         inBounds = ((xStart <= x <= xEnd) and
                 (yStart <= y <= yEnd))
         return inBounds
-
+#CITATION: from CMU https://www.cs.cmu.edu/~112/notes/notes-animations-part2.html
     def drawCell(self,canvas, row, col, color):
         x0, y0, x1, y1 = CookingMode.getCellBounds(self, row, col)
         canvas.create_rectangle(x0, y0, x1, y1, fill = color
@@ -591,7 +546,7 @@ class CookingMode(Mode):
         canvas.create_oval(x0, y0, x1, y1, fill='blue')
         
     #given path of image and which row, col it should be centered in, draw image
-
+#CITATION: SCALE IMAGE FROM https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
     def drawImage(self, img, midRow, midCol, grid):
         #draw image to be based on where the inventory is
         if grid == 'inventory':
@@ -603,14 +558,7 @@ class CookingMode(Mode):
             x0, x1, y0, y1 = CookingMode.getCellBounds(self, midRow, midCol)
             scaleFactor = CookingMode.scaleImage(self, img, self.cellWidth)
         canvas.create_image((x0+x1)/2, (y0+y1)/2, image = ImageTk.PhotoImage(img)) 
-        
-    #taken from 112 Website
-    def getCachedPhotoImage(self, image):
-        # stores a cached version of the PhotoImage in the PIL/Pillow image
-        if ('cachedPhotoImage' not in image.__dict__):
-            image.cachedPhotoImage = ImageTk.PhotoImage(image)
-        return image.cachedPhotoImage
-
+#CITATION: convertMilli and drawTimer code based off of https://stackoverflow.com/questions/35989666/convert-milliseconds-to-hours-min-and-seconds-python
     def convertMilli(self, milli):
         seconds=(milli//1000)%60
         minutes=(milli//(1000*60))%60
@@ -654,7 +602,7 @@ class CookingMode(Mode):
                     self.displayInventory[i][0] = loadedImg
                     #print(f'TTHIS IS DISPLAY INVNETORY {self.displayInventory}')
     #helper function to draw the currently loaded images in displayInventory
-
+#CITATION: DRAW IMAGE FROM https://www.cs.cmu.edu/~112/notes/notes-animations-part3.html
     def drawInventoryIngredients(self, canvas):
         for i in range(len(self.displayInventory)): 
             #as long as there's the objected loaded in that inventory, proceed

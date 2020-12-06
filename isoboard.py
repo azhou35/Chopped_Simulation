@@ -1,6 +1,7 @@
 #isometric game board
 #convert game board to be tile based
 #code from https://gamedevelopment.tutsplus.com/tutorials/creating-isometric-worlds-a-primer-for-game-developers--gamedev-6511
+#code from https://stackoverflow.com/questions/892811/drawing-isometric-game-worlds
 def cartToIso(cartX, cartY):
     isoX = cartX - cartY
     isoY = (cartX + cartY) / 2
