@@ -60,7 +60,7 @@ class CookingMode(Mode):
         appliances = self.applianceList
         firstAppliance = appliances[0]
         firstMoveList = list()
-        #print(f'THIS IS ACCESS {self.accessPoints} and THIS IS THE FIRST ONE {self.accessPoints[firstAppliance][0]}')
+        print(f'THIS IS ACCESS {self.accessPoints}')
         firstAppRow, firstAppCol = self.accessPoints[firstAppliance][0], self.accessPoints[firstAppliance][1]
         self.moveList+=(CookingMode.generatePath(self.oppRow, self.oppCol, firstAppRow, firstAppCol, firstMoveList))
         #add arbitrary number to indicate wait time 
@@ -108,24 +108,31 @@ class CookingMode(Mode):
     def isLegal(self, row, col):
         if self.board[row][col] == 'white':
             if not (self.oppRow == row and self.oppCol == col): 
-                return True
+                if 0<= row <=self.rows-1 and 0<=col <=self.cols-1:
+                    return True
         else:
             return False  
     #oveList = list()
     #keeps track of Mouse pressed 
     def mousePressed(self, event):
         mouseX, mouseY = event.x, event.y 
-
         #need some kind of case in case it clicks outside the grid 
+        
         color = CookingMode.getColor(self, mouseX, mouseY)
+
         if color !=None and color=='pink':
             (row, col) = CookingMode.getCell(self, mouseX, mouseY)
             currLocation = list((row, col))
             for appliance, location in self.applianceDict.items():
+                #check that the location u clicked on is in the dictionary of appliance dicts
                 if location == currLocation:
-                    self.currentAppliance = appliance
-                    #print(self.currentAppliance)
-            self.isApplianceScreen = True 
+                    #check that you can only click when ur in the right access point
+                    print(self.charRow, self.charCol, self.accessPoints[appliance])
+                    if [self.charRow, self.charCol] == self.accessPoints[appliance]:
+                        print(location==currLocation)
+                        self.currentAppliance = appliance
+                        #print(self.currentAppliance)
+                        self.isApplianceScreen = True 
 
             #trigger and open the appliance menu 
         else: 
@@ -161,16 +168,17 @@ class CookingMode(Mode):
         #keep track which parts of board are filled
         self.board = [self.cols * ['white'] for row in range(self.rows)]
         self.waitTime = -1
-        self.oppRow = 4 
-        self.oppCol = 0 
+        #self.oppRow = 4 
+        #self.oppCol = 0 
 
         #self.goalRow = 5
         #self.goalCol = 5 
         #call helper function for list of moves it will need to take
         #self.moves = CookingMode.generatePath(self.oppRow, self.oppCol, self.goalRow, self.goalCol, [])
         self.moveNum = 0 
-        self.charRow = self.rows-4
-        self.charCol = 0
+        #self.charRow = self.rows-4
+        #self.charCol = 0
+        
         #self.app.cookingMode.finalDish
         (self.cookbooks, self.basket, self.Person, self.Opponent, self.Appliances, self.IngredientObjects) = (self.app.basketMode.cookbooks, self.app.basketMode.basket, self.app.basketMode.Person,
                                                                                     self.app.basketMode.Opponent, self.app.basketMode.Appliances, self.app.basketMode.Ingredients)
@@ -198,12 +206,47 @@ class CookingMode(Mode):
         #CookingMode.setUpAppliances(self)
         CookingMode.randomizeAppliances(self)
         self.outlineRowCol = list()
+        CookingMode.randomStarting(self)
         CookingMode.setUpGameAI(self)
         CookingMode.placeImage(self)
         #self.basket = classes.randomizeBasket(self.cookbooks[0])
         self.playerFinalDish = ''
         self.complexity = 0 
         self.recipeCounter = 0
+        self.currentAppliance = ''
+
+    def randomStarting(self):
+        #CITATION: inspired by randomization here https://www.cs.cmu.edu/~112/notes/notes-animations-part2.html
+        while True:
+            side = random.choice(['top', 'left', 'right', 'up'])
+            if side == 'top':
+                self.oppRow = 0 
+                self.oppCol = random.randint(0, self.cols - 1)
+                self.charRow = 0 
+                self.charCol = random.randint(0, self.cols-1)
+            
+            elif side == 'left':
+                self.oppRow = random.randint(0, self.rows - 1)
+                self.oppCol = 0
+                self.charRow = random.randint(0, self.rows - 1)
+                self.charCol = 0     
+            elif side == 'right':
+                self.oppRow = random.randint(0, self.rows - 1)
+                self.oppCol = self.cols-1 
+                self.charRow = random.randint(0, self.rows - 1)
+                self.charCol = self.cols-1 
+
+            else: #bottom
+                self.oppRow = self.rows-1
+                self.oppCol = random.randint(0, self.cols - 1)
+                self.charRow = self.rows-1
+                self.charCol = random.randint(0, self.cols - 1)
+            #check that this is legal
+            if not (self.oppRow, self.oppCol) == (self.charRow, self.charCol):
+                if self.board[self.charRow][self.charCol] == 'white' and self.board[self.oppRow][self.oppCol] == 'white':
+                    return 
+
+
     def convertMoveToAppliance(self):
         for item in self.applianceList:
             if item=='stack': 
@@ -253,10 +296,11 @@ class CookingMode(Mode):
 #first check if there's not something already in the path, otherwise, return false
             if self.board[row][col] != 'white':
                 return False 
-            applianceLocation = [row, col] #set current row, col applicane location
+            
             #this is appliance location!
             if i == 5//2:
                 color = 'pink'
+                applianceLocation = [row, col] #set current row, col applicane location
                 if side == 0: #this means its on top or on left, meaning u should either increase  
                     if orientation == 'vert': 
                         accessPoint = [row, col+1]
@@ -277,7 +321,6 @@ class CookingMode(Mode):
             self.board[item[0][0]][item[0][1]] = item[1]
         self.accessPoints[appliance] = accessPoint
         self.applianceDict[appliance] = applianceLocation
-        print(f'this is access points{self.accessPoints}')
 
         return True 
 
@@ -287,23 +330,25 @@ class CookingMode(Mode):
         side = random.choice([0, self.cols-1])
             #randomize starting point
         startingPoint = random.randint(0, self.cols - length - 1) #ending opint is so it doesnt go past the end of the board
+        #add legality check here?
+        
         return orientation, side, startingPoint
 
     #function to randomly place appliances on different areas on the board! 
     def randomizeAppliances(self):
-        appliances = ['whisk', 'bake', 'blend', 'saute', 'stack']
+        appliances = ['mix', 'bake', 'blend', 'saute', 'stack']
         #randomly choose if vertical or horizontal
         length = 5
         self.accessPoints = dict()
         self.applianceDict = dict()
-        isLegal = False
         for i in range(len(appliances)):
+            isLegal = False
             #should keep redoing this until you get a legal appliance setting :^))) 
             #inspo for randomization from snake https://www.cs.cmu.edu/~112/notes/notes-animations-part2.html
             while isLegal == False:  
                 orientation, side, startingPoint = CookingMode.generateRandom(self, appliances, length)
                 isLegal = CookingMode.placeAppliance(self, length, startingPoint, side, orientation, appliances[i])
-    
+
     def setUpAppliances(self):
         self.accessPoints = { 'mix': [1, 3], 
         'bake': [1, 9], 
@@ -346,6 +391,7 @@ class CookingMode(Mode):
                     self.combination = CookingMode.combineIngredients(self)
                     self.playerFinalDish = self.combination
                     self.isCombine = True
+                    #add to complexity each time something is combined
                     self.complexity += 1 
         #go to nex mode
         elif event.key == 'n':
@@ -397,7 +443,6 @@ class CookingMode(Mode):
                 return ingredObject
 
     def timerFired(self):
-        print(self.waitTime)
         #print(f'THIS IS MOVE NUM: {self.moveNum}')
         if self.waitTime ==-1:
             #moveNormally
@@ -408,7 +453,6 @@ class CookingMode(Mode):
             self.waitTime = -1
         else: #when you hit stop time, don't move 
             self.waitTime -=100
-            print(self.oppRow, self.oppCol)
         if self.pantryTimer>=0:
             self.pantryTimer -=100
         else:
@@ -516,7 +560,7 @@ class CookingMode(Mode):
             path = Ingredient.path
             #keep track of howmany successful recipes you made
             if self.isCombine: 
-                self.recipeCounter +=1 
+                self.recipeCounter +=1 #successful recipe being made
         else:
             #if havent set up image for this, set default "gunk" image
             path = '/Users/az/Documents/GitHub/Chopped_Simulation/images/gunk.png'
@@ -727,7 +771,6 @@ class CookingMode(Mode):
         CookingMode.drawGameAI(self, canvas)
         CookingMode.drawPlayer(self, canvas)
         #CookingMode.setUpAppliances(self, canvas)
-        CookingMode.randomizeAppliances(self, canvas)
         CookingMode.drawInventoryScreen(self, canvas)
         CookingMode.drawInventoryTable(self, canvas)
         CookingMode.drawTimer(self, canvas)
@@ -754,25 +797,33 @@ class JudgingMode(Mode):
         self.gameAIIngredients = self.app.cookingMode.groceries
         self.playerWebScore = ''
         self.gameAIWebScore = ''
-        print(self.gameAIIngredients)
+        self.complexity = self.app.cookingMode.complexity
+        self.recipeCounter = self.app.cookingMode.recipeCounter
+        #print(self.gameAIIngredients)
         self.numberCalculated = 0
         self.isWinnerCalculated=False
+        self.idealCombos, self.grossCombos = classes.combos()
+
     def keyPressed(self, event):
         #launch webScraping for opponent's dish
-
         if event.key == 'o':
             playerNum = web.recipeScraper(self.playerIngredients)
-            self.playerWebScore = JudgingMode.calculateScore(self, playerNum)
+            self.playerWebScore = JudgingMode.calculateWebscraping(self, playerNum)
             self.numberCalculated+=1
             #rint(self.gameAINum)
         elif event.key == 'p':
             gameAINum = web.recipeScraper(self.gameAIIngredients)
-            self.gameAIWebScore = JudgingMode.calculateScore(self, gameAINum)
+            self.gameAIWebScore = JudgingMode.calculateWebscraping(self, gameAINum)
             self.numberCalculated+=1
         elif event.key == 'w':
             self.isWinnerCalculated = True
 
-    def calculateScore(self, num):
+    #function to calculate how many appliances were used, which level of cookbook its in 
+    def calculateComplexity(self):
+        self.complexityScore = self.recipeCounter + self.complexity 
+        self.complexityScore = self.complexityScore // 8 #number of appliances + levels of cooksbooks 
+        self.complexityScore = self.complexityScore * 10 
+    def calculateWebscraping(self, num):
         #case where there are no recipes bc combo is so bizzarre
         if num < 5: 
             webScore = 3
@@ -925,7 +976,7 @@ class ShoppingMode(Mode):
         imgX = self.width/2 
         #if box is currently selected, change outline
         if (row, col) in self.currentSelect:
-            outline = 'red'
+            outline = 'white'
             width = 3
         else:
             outline = ''
@@ -1080,18 +1131,20 @@ class BasketMode(Mode):
             path = ingredObject.path 
             self.ingredImg = self.loadImage(path)
             #print(self.ingredImg)
-            self.scaledImg = self.scaleImage(self.ingredImg, self.width/6)
-            self.basketLoadedIngredients.append(self.scaledImg)
+            #self.scaledImg = self.scaleImage(self.ingredImg, self.width/6)
+            self.basketLoadedIngredients.append(self.ingredImg)
 
     def drawScreen(self,canvas):
         canvas.create_rectangle(0,0, self.width, self.height, fill = 'pink')
+
         canvas.create_image(self.width/2, self.height/2, image = ImageTk.PhotoImage(self.screenImg))
     #function to go thru basket loaded images and draw it 
     def drawBasket(self, canvas):
         #for item in self.basket:
-     
-        canvas.create_image(self.width/4, self.height/2, image = ImageTk.PhotoImage(self.basketLoadedIngredients[0]))
-        canvas.create_image(3*self.width/4, self.height/2, image = ImageTk.PhotoImage(self.basketLoadedIngredients[1]))
+        #img1 = self.scaleImage(self.basketLoadedIngredients[0], self.width/6)
+        #img2 = self.scaleImage(self.basketLoadedIngredients[1], self.width/6)
+        canvas.create_image(1.5*self.width/5, 3*self.height/5, image = ImageTk.PhotoImage(self.basketLoadedIngredients[0]))
+        canvas.create_image(3.5*self.width/5, 3*self.height/5, image = ImageTk.PhotoImage(self.basketLoadedIngredients[1]))
 
     """
        i = 0 

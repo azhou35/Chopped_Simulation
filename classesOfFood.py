@@ -61,14 +61,13 @@ def setUpObjects():
     Rice = Staples('rice', 'grain')
     Sugar = Staples('sugar', 'fruit')
     Bread = Staples('bread', 'grain')
-    Bagel = Staples('bagel', 'grain')
+    Naan = Staples('naan', 'grain')
 
 
 
 
-    ingredients = (Potato, Butter, Milk, Onion, Flour, Strawberry, Lettuce, Fish, Cheese, Chicken, Tomato, Kale, Rice, Sugar, Bread, Bagel, Egg)
+    ingredients = (Potato, Butter, Milk, Onion, Flour, Strawberry, Lettuce, Fish, Cheese, Chicken, Tomato, Kale, Rice, Sugar, Bread, Naan, Egg)
 
-    print(Potato.combine([Milk, Butter], ['saute']))
     
     return cookbooks, basket, Person, Opponent, appliances, ingredients
 
@@ -113,7 +112,7 @@ def setUpCookbooks():
                         'mashedPotato': [['potato', 'milk', 'butter'], ['mix', 'saute', 'blend']],                    
                         'cookedFish': [['fish'], ['saute', 'bake']],
                         'salad': [['lettuce', 'onion', 'kale'], ['mix', 'stack']],
-                        'toastedBagel': [['bagel'], ['saute', 'bake']]
+                        'toastedNaan': [['naan'], ['saute', 'bake']]
 
     }     
 
@@ -147,6 +146,10 @@ def setUpCookbooks():
     }
     cookbooks = [firstLevelCookbook, secondLevelCookbook, thirdLevelCookbook]
     return cookbooks 
+def combos():
+    idealCombos = [['cheese', 'tomato', 'bread'], ['milk', 'sugar']]
+    grossCombos = [['fish', 'strawberry'], ['chicken', 'sugar'], ['tomato', 'milk'], ['potato', 'sugar']]
+    return idealCombos, grossCombos
 #list of all the base ingredients 
 def ingredientList(firstLevelCookbook):
     ingredients = set()
@@ -277,7 +280,6 @@ class gameAI(Player):
         total = len(self.cookbooks)
         #loop thru list backwards
         for index in range(total-1, -1, -1):
-            print(index)
             recipe = returnRecipe(self.finalDish, self.cookbooks, index)
             if recipe != None:
                 #add a random appliance from this list of appliances
@@ -293,8 +295,6 @@ class gameAI(Player):
                     index -=1 
                 if index == 0: 
                     for baseIngred in recipe[0]:
-                        print(f'recipe is {recipe}')
-                        print('ur getting here!')
                         self.groceries.add(baseIngred)
     #def generateGroceries(self):
 

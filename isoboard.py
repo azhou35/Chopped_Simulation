@@ -1,3 +1,5 @@
+from cmu_112_graphics import *
+
 #isometric game board
 #convert game board to be tile based
 #code from https://gamedevelopment.tutsplus.com/tutorials/creating-isometric-worlds-a-primer-for-game-developers--gamedev-6511
@@ -6,10 +8,11 @@ def cartToIso(cartX, cartY):
     isoX = cartX - cartY
     isoY = (cartX + cartY) / 2
     return isoX, isoY
+
 def isoToCart(isoX, isoY):
     cartX = (2 * isoY + isoX) / 2
     cartY = (2 * isoY - isoX) / 2
-
+    return cartX, cartY 
 def createIsoBoard(board, tileWidth, tileHeight):
     for row in range(board):
         for col in range(board[0]):
@@ -18,18 +21,26 @@ def createIsoBoard(board, tileWidth, tileHeight):
     tileType = levelData[row][col]
     placetile(tileType, carToIso((x, y)))
 
-
+def keyPressed(app, event):
+    if event.key =='Up':
+        app.charRow -=1 
+    elif event.key =='Down':
+        app.charRow +=1 
+    if event.key =='Left':
+        app.charCol -=1 
+    elif event.key =='Right':
+        app.charCol +=1 
 def placeTile(tileType, point):
     return
 #code from CMU https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html#exampleGrids
-from cmu_112_graphics import *
 def appStarted(app):
     app.rows = 10
     app.cols = 10
     app.margin = 5 # margin around grid
     app.timerDelay = 250
     app.waitingForFirstKeyPress = True
-
+    app.charRow = 0
+    app.charCol = 0 
 # getCellBounds from grid-demo.py
 def getCellBounds(app, row, col):
     # aka 'modelToView'
@@ -42,6 +53,9 @@ def getCellBounds(app, row, col):
     y1 = app.margin + gridHeight * (row+1) / app.rows
     return (x0, y0, x1, y1)
 
+def drawChar(app, canvas):
+    x0,y0,x1, y1 = getCellBounds(app, app.charRow, app.charCol)
+    canvas.create_oval(x0,y0,x1, y1, fill = 'red')
 def drawBoard(app, canvas):
     for row in range(app.rows):
         for col in range(app.cols):
@@ -49,7 +63,7 @@ def drawBoard(app, canvas):
             canvas.create_rectangle(x0, y0, x1, y1, fill='white')
 def redrawAll(app, canvas):
     drawBoard(app,canvas)
-
+    drawChar(app, canvas)
 
 runApp(width=400, height=400)
 
