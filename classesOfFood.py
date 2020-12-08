@@ -194,7 +194,6 @@ def itemInRecipe(basket, cookbooks, combinations):
                             dishList.append(dish)
         combinations.append(possibleRecipes)
         return itemInRecipe(basket+dishList, cookbooks[1:], combinations)
-
 #function that creates a random path for game ai to follow based on which appliances
 #it needs, given a recipe 
 def returnRecipe(finalDish, cookbooks, index):

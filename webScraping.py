@@ -3,6 +3,7 @@
 #CITATION: SELENIUM USED FROM HERE https://pypi.org/project/selenium/ FOR WEBSCRAPING
 #CITATION: SELENIUM DOCUMENTATION AND FUNCTIONS FROM https://www.selenium.dev/documentation/en/
 #CITATION: WEBDRIVER DOWNLOADED FROM https://chromedriver.chromium.org/downloads 
+
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -58,7 +59,7 @@ def recipeScraper(finalProduct):
 
     clickSearchButton = findSearchButton.click()
 
-    time.sleep(15)
+    time.sleep(5)
 
     h4Results = driver.find_elements_by_tag_name('h4')
     recipeResult = h4Results[1]
@@ -73,5 +74,5 @@ def recipeScraper(finalProduct):
             break
     #convert back into a number 
     num = int(num)
-    #driver.quit()
+    driver.quit()
     return num

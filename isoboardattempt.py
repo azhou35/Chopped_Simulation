@@ -19,9 +19,7 @@ def pixelToMap(app, x, y):
     tileWidthHalf = (gridWidth//app.rows) / 2 
     row = (x / tileWidthHalf + y / tileWildthHalf) / 2
     col = (y / tileWidthHalf - (x / tileWidthHalf)) /2
-def isLegal(app, row, col):
-    if 0<= row <=app.rows-1 and 0<=col <=app.cols-1:
-        return True
+
 #i dont think i need this
 def createIsoBoard(board, tileWidth, tileHeight):
     for row in range(board):
@@ -34,38 +32,36 @@ def createIsoBoard(board, tileWidth, tileHeight):
     return x, y
 def keyPressed(app, event):
     if event.key =='Up':
-        if isLegal(app, app.charRow-1, app.charCol):
-            app.img = app.upImg
-            app.charRow -=1 
+        app.img = app.upImg
+        app.charRow -=1 
     elif event.key =='Down':
-        if isLegal(app, app.charRow+1, app.charCol):
-            app.img = app.downImg
+        app.img = app.downImg
 
-            app.charRow +=1 
+        app.charRow +=1 
     if event.key =='Left':
-        if isLegal(app, app.charRow, app.charCol-1):
+        app.img = app.leftImg
 
-            app.img = app.leftImg
-
-            app.charCol -=1 
+        app.charCol -=1 
     elif event.key =='Right':
-        if isLegal(app, app.charRow, app.charCol+1):
-            app.img = app.rightImg
+        app.img = app.rightImg
 
-            app.charCol +=1 
+        app.charCol +=1 
 def placeTile(tileType, point):
     return
 #code from CMU https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html#exampleGrids
 def appStarted(app):
     app.rows = 6
     app.cols = 6
-    app.margin = 60 # margin around grid
+    app.margin = 200 # margin around grid
     app.timerDelay = 250
     app.waitingForFirstKeyPress = True
     app.charRow = 0
     app.charCol = 0 
-    app.tileWidth = 64
-    app.tileHeight = 64
+    app.gridTopX, app.gridTopY = 312, 280
+    app.gridRightX, app.gridRightY = 558, 426
+    app.gridBottomX, app.gridBottomY = 312, 579
+    app.gridLeftX, app.gridLeftY = 46, 426
+
     setUpCharImages(app)
 
 def setUpCharImages(app):    
@@ -102,12 +98,13 @@ def getIsoCellBounds(app, row, col):
 def getCellBounds(app, row, col):
     # aka 'modelToView'
     # returns (x0, y0, x1, y1) corners/bounding box of given cell in grid
-    gridWidth  = app.width 
-    gridHeight = app.height 
-    x0 = gridWidth * col / app.cols
-    x1 =gridWidth * (col+1) / app.cols
-    y0 = gridHeight * row / app.rows
-    y1 = gridHeight * (row+1) / app.rows
+    
+    gridWidth  = app.gridRightX - app.gridLeftX
+    gridHeight = app.gridTopY - app.gridBottomY
+    x0 = app.margin + gridWidth * col / app.cols
+    x1 = app.margin + gridWidth * (col+1) / app.cols
+    y0 = app.margin + gridHeight * row / app.rows
+    y1 = app.margin + gridHeight * (row+1) / app.rows
     return (x0, y0, x1, y1)
 
 def drawChar(app, canvas):
@@ -116,7 +113,6 @@ def drawChar(app, canvas):
     canvas.create_image((x0+x1)/2, (y0+y1)/2, image = ImageTk.PhotoImage(app.img)) 
     
 
-
 def drawBoard(app, canvas):
     for row in range(app.rows):
         for col in range(app.cols):
@@ -124,9 +120,7 @@ def drawBoard(app, canvas):
             startx0, starty0 = cartToIso(x0, y0)
             endx1, endy1 = cartToIso(x1, y1)
             midx1, midy1 = startx0 +(endy1-starty0)/2, starty0 + (endy1-starty0)/2
-            r = 5
-            canvas.create_oval(x0-r, y0-r, x0+r, y0+r, fill = 'pink')
-            canvas.create_oval(x1-r, y1-r, x1+r, y1+r, fill = 'pink')
+            canvas.create_polygon(startx0, starty0, midx1, midy1, endx1, endy1, fill='black')
 
 def drawKitchen(app, canvas):
     canvas.create_image(app.width/2, app.height/2, image = ImageTk.PhotoImage(app.imgKitchen))
