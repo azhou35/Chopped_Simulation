@@ -19,6 +19,31 @@ def leaderboard(file):
             board[name] = num
     return board #return dictionary board
 #https://www.kite.com/python/answers/how-to-edit-a-file-in-python file function documentation
+#function to set up passuser
+def passUser(file):
+    login = dict()
+    f = open(file, 'r')
+    for line in f.readlines():
+        line = line.replace('\n','')
+        line = line.strip()
+        user = ''
+        password = ''
+        isBeforeColon = True
+        for char in line:
+            if not char == '\n' and not char == ' ':
+                if char == ':':
+                    isBeforeColon = False
+                else:
+                    if isBeforeColon:
+                        user = user + char
+                    else:
+                        password = password + char
+                    
+
+        if not user=='':
+            login[user] = password
+    return login #return dictionary board
+#https://www.kite.com/python/answers/how-to-edit-a-file-in-python file function documentation
 
 #print(leaderboard('leaderboard.txt'))   
 #update leaderboard dict given ur curent core
@@ -41,3 +66,43 @@ def sortLeaderboard(file, board):
         print(type(value))
     boardList.sort(reverse = True)
     return boardList
+def addRecipe(file, curruser, finalDish):
+    f = open(file, 'r')
+    listOfStrings = f.readlines()
+
+    f.close()
+    linecounter = 0
+    lineToChange = 0
+    lineText = ''
+    for line in listOfStrings:
+        
+        isBeforeColon = True
+        firstSpace = True
+        recipe =''
+        user = ''
+        for char in line:
+            if not char == '\n':
+                if char == ':':
+                    isBeforeColon = False
+                else:
+                    if isBeforeColon:
+                        user = user + char
+                    else:
+                        if not char == ' ':
+                            recipe = recipe + char
+            #after getting all the nifo check if this is current user
+        if curruser == user:
+            recipe = recipe + f', {finalDish} ' #string of all the lists
+            lineText = f'{curruser}:{recipe}'
+            lineToChange = linecounter
+            print(line)
+
+        linecounter+=1 
+    listOfStrings[lineToChange] = lineText + '\n'
+    f = open(file, 'w')
+    newContents = ''.join(listOfStrings)
+    f.write(newContents)
+    f.close() 
+
+    readFile = open(file)
+    print(readFile.read())

@@ -1,9 +1,5 @@
 #CITATION: CMU GRAPHICS FRAMEWORK CREDS TO: https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
 #this includes CMU Graphics file, so functions like "appStarted" and such
-#TP 3: work on ui: which one is player, which one is game ai, kitchen appliances
-#make it more explicit how to combine ingredients 
-
-
 from cmu_112_graphics import *
 #my own files
 import classesOfFood as classes 
@@ -634,6 +630,8 @@ class CookingMode(Mode):
             #check cookbook first so u can return to appliance screen
             elif self.isCookbook:
                 self.isCookbook = False 
+            elif self.isSorry:
+                self.isSorry = False
             elif self.isApplianceScreen:
                 self.isApplianceScreen = False
             

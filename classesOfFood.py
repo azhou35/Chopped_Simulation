@@ -29,10 +29,10 @@ butter: https://www.google.com/url?sa=i&url=http%3A%2F%2Fpngimg.com%2Fdownload%2
 import random
 
 
-def setUpObjects():
+def setUpObjects(dietaryList):
 
     cookbooks = setUpCookbooks()
-    basket = randomizeBasket(cookbooks[0])
+    basket = randomizeBasket(cookbooks[0], dietaryList)
     row, col = 0, 0
     Person = Player(row, col, basket, cookbooks)
     Opponent = gameAI(row, col, basket, cookbooks)
@@ -76,7 +76,6 @@ def setUpObjects():
 def isRecipe(inventory, method, recipe):
     #recipe is a 2D list
     neededIngredients = recipe[0]
-    print(recipe[0])
     #check to see if every necessary ingredient is in your current inventory of ingredients
     for food in neededIngredients:
         if food not in inventory:
@@ -162,11 +161,20 @@ def ingredientList(firstLevelCookbook):
 
 #should I use recursion? 
 #result from this should be a list of all the appliances I need to visit 
-def randomizeBasket(cookbook):
+#adjusted to not include allergens
+def randomizeBasket(cookbook, dietaryList):
     #call helper function to get all possible ingredients from firstCookbook level
     ingredients = ingredientList(cookbook)
     #convert to list to make subscriptable for random.choices
     ingredients = list(ingredients)
+    #remove any bad in gredients
+    if 'vegetarian' in dietaryList:
+        ingredients.remove('chicken')
+        ingredients.remove('fish')
+    if 'vegan' in dietaryList:
+        ingredients.remove('milk')
+        ingredients.remove('butter')
+        ingredients.remove('egg')
     basket = random.choices(ingredients, k=2)
     return basket
 
@@ -176,7 +184,19 @@ def randomizeBasket(cookbook):
 #combinations starts off as an empty list (2D)
 #since each combination can be an ingredient in another level's recipe, keep calling recursively
 #until you've looked thru all possible cookbooks 
-
+def accessRecipes(basket, cookbooks):
+    recipeDict = dict()
+    for i in range(3):
+        dishList = list() 
+        possibleRecipes = list()
+        for dish, recipe in cookbooks[i].items():
+            #loop thru every ingredient
+            for ingred in basket:
+                if ingred in recipe[0]:
+                    #check that recipe wasn't added already
+                    if not dish in recipeDict:
+                        recipeDict[dish] = recipe
+    return recipeDict
 def itemInRecipe(basket, cookbooks, combinations):
     if len(cookbooks)==0:
         return combinations 
@@ -283,7 +303,8 @@ class gameAI(Player):
             if recipe != None:
                 #add a random appliance from this list of appliances
                 self.applianceList.append(random.choice(recipe[1]))
-
+                for item in recipe[0]: #add grocery ingredients
+                    self.groceries.add(item)
                 while index != 0: #if ur not at the 1st cookbook, u have more levels to check 
                     for dish in recipe[0]:
                             #look at cookbooks lower than this index
@@ -291,10 +312,13 @@ class gameAI(Player):
                             innerRecipe = returnRecipe(dish, self.cookbooks, i)
                             if innerRecipe != None: 
                                 self.applianceList.append(random.choice(innerRecipe[1]))
+                                for item in innerRecipe[0]:
+                                    self.groceries.add(item)
                     index -=1 
                 if index == 0: 
                     for baseIngred in recipe[0]:
                         self.groceries.add(baseIngred)
+        print(self.groceries)
     #def generateGroceries(self):
 
 
@@ -319,7 +343,7 @@ class gameAI(Player):
                         #check that recipe wasn't added already
                         if not recipe in possibleRecipes:
                             if not dish in dishList:
-                                possibleRecipes.append(dish)
+                                possibleRecipes.append(dish) 
                                 dishList.append(dish)
             combinations.append(possibleRecipes)
             return itemInRecipe(basket+dishList, cookbooks[1:], combinations)
@@ -333,192 +357,3 @@ class gameAI(Player):
         else:
             return None 
 
-
-#not getting to third cookbook
-#for some reason 
-
-    #get list of every possible firstLevel component that contains basket ingredients
-
-
-
-"""
-class Sauces(Staples):
-    def __init__(self):
-        super().__init__(self, name, foodGroup)
-        #self.cookingMethods = ['mix', 'bake', 'blend'] #how do i initlalize this w objects
-
-class Grains(Staples):
-    def __init__(self):
-        super().__init__(self, name, flavor)
-        self.placement: 'base'
-class Produce(Staples):
-    def __init__(self):
-        self.appliances = [Knife, Saute, Blender] #how do i initlalize this w objects
-class Protein(Staples):
-    def __init__(self):
-        self.appliances = [Knife, Saute, Oven] #how do i initlalize this w objects
-class Dairy(Staples):
-    def __init__(self):
-        self.appliances = [Knife, Saute, Oven] #how do i initlalize this w objects
-
-
-#these are the basket ingredients
-class Wildcards(Staples):
-    def __init__(self):
-        return
-"""
-
-"""    
-class Oven(Appliance):
-    def __init__(self, name, timer):
-        return
-class Stove(Appliance):
-    def __init__(self, name, timer):
-        return
-
-class Blender(Appliance):
-    def __init__(self, name, timer):
-        return
-
-class Knife(Appliance):
-    def __init__(self, name, timer):
-        return
-class Whisk(Appliance):
-    def __init__(self, name, timer):
-        return
-class IceCreamMachine(Appliance):
-    def __init__(self, name, timer):
-        return
-class Microwave(Appliance):
-    def __init__(self, name, timer):
-        return
-
-
-class gameAI(Player):
-    basket = list() #list of ingredient object
-    def __init__(self, cx, cy, difficulty):
-        super().__init__(self, cx, cy)
-    def moveDir(self, dx, dy):
-        self.cx += dx
-        self.cy += dy 
-    def addToBasket(self, ingredient):
-        gameAI.basket.append(ingredient)
-    def randomizeFinalProduct(self):
-        r1 = random.randint(0, 1000)
-        if (r1<300): #bad dish
-            #randomly choose from base
-            #randomly choose from either fruit or vegetable
-                #randomly choose item from there
-            #randomly choose a purree
-            return
-        elif (r1>300 and r1<700): #meh dish
-            #randomly choose a second-degree ingredient
-            #see what items you need need, what appliances 
-            return
-        else:
-            #randomly choose a third-degree ingredient
-            #see what second-degree ingredients you need, what appliances 
-                #what first degrees, what items from pantry
-            #choose from an optimal combination listed
-            #follow a preset recipe? 
-            #call webscraping for a recipe that u know is good 
-            return
-
-"""
-def optimalIngredientCombos(ingredients):
-    return 
-
-def isLegal(direction):
-    return True 
-
-
-    #similar to word search
-
-    #does this need to be recurisve?
-
-
-    #choose a random direction (up, down, right, left)
-    #check if next cell of grid is a wall or an appliance
-    #randomly interact with wall for a bit
-    #if cell is wall go back to step 1
-    #else move avatar to that cell 
-    #depthfirst algorithm 
-    #or pathfinding algorithm
-    return 
-
-def setUpIngredients(finalProduct):
-        
-    egg = Staples('egg', 'neutral')
-    icecream = Wildcards('icecream', 'sweet')
-    #Produce
-    fruitList = ['banana', 'strawberry', 'blueberry', 'persimmon', 'orange']
-    for fruit in fruitList:
-        fruit = Produce(f'{fruit}', 'sweet')
-    veggieList = ['potato', 'mushroom', 'tomato', 'bok choy', 'brussel sprout', 'celery', 'carrot', 'onion']
-    for veggie in veggieList:
-        veggie = Produce(f'{veggie}', 'umami')
-    grainList = ['tortilla', 'bread', 'bagel', 'pita', 'crackers']
-    for grain in grainList:
-        grain = Grains(f'{grain}', 'neutral')
-    bakeryList = ['pancake', 'waffle']
-    for sweet in bakeryList: 
-        sweet = Grains(f'{sweet}', 'sweet')
-    proteinList = ['beef', 'pork', 'chicken', 'tofu', 'egg']
-    for protein in proteinList: 
-        protein = Protein(f'{protein}', 'umami')
-    dairyList = ['milk', 'yogurt', 'cheese']
-    for dairy in dairyList: 
-        dairy = Dairy(f'{dairy}', 'sweet')
-
-#helper function to load image given image path property
-def loadImage(ingredient, cx, cy):
-    self.ingredientImage = self.scaleImage(self.loadImage(ingredient.path), 1/2)
-    canvas.create_image(cx, cy, image = ImageTk.PhotoImage(self.ingredientImage)) 
-
-    
-def pantryMode(basket):
-    return 
-
-def scoreCalculator(basket):
-    #uniqueness = 0 
-    #for item in finalProduct:
-
-    #look at how flavorful everything is for "uniqueness"
-    #score deductions for burnt food
-    return
-def flavorCalculator(basket):
-    return
-def presentationCalculator(basket):
-    #value color ful presentation
-    colorsOfDish = list()
-    for item in basket:
-        colorsOfDish.append(colorPicker(item))
-    #get average somehow 
-    return pixelList
-def colorPicker(item):
-    pixelList = list()
-    path = item.path
-    for x in path.width:
-        for y in path.height:
-            pixelList.append(path.getpixel(x, y))
-    #some how get average, then color from here
-    #check out image.getdata()
-    return pixelList 
-def kitchenNightmare(avatar):
-    #chance events happening to your food like food randomly burning
-    #ice cream machine not working
-    #food is dropp
-    #maybe triggers a mini game where you have to save your food or else deduction
-
-    return 
-def kitchenDreams(basket):
-    #did they have flavor combos like sofrito? like mirepoix? 
-    return 
-
-def nameInput(input):
-    #get user to name their final dish 
-    return
-def gameMode(basket):
-    #hell's ktichen -- random bad chance events higher probability 
-    #college mode -- inspired by what you get in college and rlly ratchet supplies
-    return 
