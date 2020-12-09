@@ -58,7 +58,7 @@ class CookingMode(Mode):
         #catch bugs
         if len(appliances)==0:
             self.finalDish = 'mashedPotatoes'
-            self.grocries = ['potato', 'milk', 'butter']
+            self.groceries = ['potato', 'milk', 'butter']
             appliances = ['saute']
         firstAppliance = appliances[0]
         firstMoveList = list()
@@ -69,7 +69,6 @@ class CookingMode(Mode):
         self.moveList.append((20, 20))
         #self.endingRow, self.endingCol = 0, 0
         #go thru every pair:
-        print(appliances)
         for applianceIndex in range(len(appliances)-1):
             
             appliance = appliances[applianceIndex]
@@ -86,7 +85,6 @@ class CookingMode(Mode):
         lastRow, lastCol = self.accessPoints[lastAppliance][0], self.accessPoints[lastAppliance][1]
         vibeRow, vibeCol = self.rows//2, self.cols//2
         self.moveList+=(CookingMode.generatePath(lastRow, lastCol, vibeRow, vibeCol, moveList))
-        print(self.moveList)
         #calculate path to wait in the middle
         #finalMoveList = list()
         #self.moveList += CookingMode.generatePath(self.endingRow, self.endingCol, self.rows//2, self.cols//2, finalMoveList)
@@ -120,9 +118,7 @@ class CookingMode(Mode):
     def mousePressed(self, event):
         mouseX, mouseY = event.x, event.y 
         #need some kind of case in case it clicks outside the grid 
-        print(mouseX, mouseY)
         color = CookingMode.getColor(self, mouseX, mouseY)
-
         if color !=None and color=='pink':
             (row, col) = CookingMode.getCell(self, mouseX, mouseY)
             currLocation = list((row, col))
@@ -154,7 +150,9 @@ class CookingMode(Mode):
                     #print(self.currentSelect)
             #check if it's clicked within the appliance grid 
         #else: click within the aplliance screen
-        
+    def modeActivated(self):
+        CookingMode.appStarted(self)
+ 
     def appStarted(self):
         self.rows = 15
         self.cols = 15
@@ -241,10 +239,7 @@ class CookingMode(Mode):
         self.imgYouMade = self.loadImage(self.youMadePath)
         self.combinationImg = self.loadImage('/Users/az/Documents/GitHub/Chopped_Simulation/images/cookedRice.png')
         self.timerDelay = 200
-        try:
-            self.isCasual = self.app.customizeMode.isCasual #default is false, unless u click is casual
-        except:
-            self.isCasual = self.app.profileMode.isCasual #check the other possible place for casual
+        self.isCasual = self.app.customizeMode.isCasual 
         self.isCookbook = False 
         CookingMode.setUpCharImages(self)
         self.recipeDict = classes.accessRecipes(self.inventory, self.cookbooks)
@@ -546,7 +541,6 @@ class CookingMode(Mode):
                 self.charCol += 1
         #GET BACK HERE POTATO
         elif event.key == 'o':
-            print(self.charRow, self.charCol)
             #check if person is at an access point
             for appliance, location in self.accessPoints.items():
                 #add a genrous filter of when you can click 'o' to compensate for isometric view
@@ -620,7 +614,6 @@ class CookingMode(Mode):
                 self.combinationImg = self.scaleImage(self.combinationImg, CookingMode.findScaleFactor(self, self.combinationImg, self.height//4))
         elif event.key == 'x':
             if self.isSpaceClick:
-                print('ur getting here ')
                 self.combination = '' #reset combination 
                 for item in self.currentSelect:
                     self.outlineRowCol = list()
@@ -634,13 +627,16 @@ class CookingMode(Mode):
                 self.isSorry = False
             elif self.isApplianceScreen:
                 self.isApplianceScreen = False
-            
+        
         elif event.key == 'i':
             if self.isCasual:
                 if self.isApplianceScreen: #ur on the appliance screen
                     self.isCookbook = True 
             else:
-                self.isSorry = True    
+                self.isSorry = True 
+        #check for inventory wrap around
+        elif event.key == 'u': #u for up 
+            self.inventory = self.inventory[1:] + [self.inventory[0]] #add the first elem to the back
         #this is where the loaded List might function differently, so call here
         CookingMode.placeImage(self)
 #CITATION: https://www.google.com/search?q=image.paste+python&oq=image.paste+python&aqs=chrome.0.0i457j0i22i30l7.3209j0j4&sourceid=chrome&ie=UTF-8 
@@ -686,7 +682,10 @@ class CookingMode(Mode):
             ingredientNames.append(ingredObject)
         firstIngred = ingredientNames[0]
         secondIngred = ingredientNames[1:]
-        combination = firstIngred.combine(secondIngred, self.currentAppliance)
+        try: 
+            combination = firstIngred.combine(secondIngred, self.currentAppliance)
+        except:
+            combination = 'mush + mush'
         if not '+' in combination:
             self.recipeCounter+=1
         return combination
@@ -713,8 +712,7 @@ class CookingMode(Mode):
                     if self.isMiddleClick:
                         self.skill += 10/12 #add points to skill for cooking well
                     else:
-                        if self.skill>=1:
-                            self.skill -= 10/12 #takes 12 timer fired, so scor changes by 10 
+                        self.skill += 10/24
                     self.combinationScreenLength += 50 
                     self.combinationScreenScaleFactor = CookingMode.findScaleFactor(self, self.imgCombinationScreen, self.combinationScreenLength)
                     self.imgCombinationScreen = self.scaleImage(self.imgCombinationScreen, self.combinationScreenScaleFactor)
@@ -769,7 +767,6 @@ class CookingMode(Mode):
                         self.gameAIDir = self.scaleImage(self.loadImage('/Users/az/Documents/GitHub/Chopped_Simulation/images/AIdiagonalRight.png'), scaleFactor)
                     else:
                         self.gameAIDir = self.scaleImage(self.loadImage('/Users/az/Documents/GitHub/Chopped_Simulation/images/AIUp.png'), scaleFactor)
-                        print(currMove)
                     if currMove[0] == 20:
                         self.waitTime = 500
                     else:
@@ -931,11 +928,12 @@ class CookingMode(Mode):
         """
     def displayImagesInInventory(self):
         for i in range(len(self.inventory)):
-            name = self.inventory[i]
-                #if i < len(self.displayInventory) - 2:
-            loadedImg = CookingMode.getIngredientImg(self, name)
+            if i <=4: #thereshold number of ingreds
+                name = self.inventory[i]
+                    #if i < len(self.displayInventory) - 2:
+                loadedImg = CookingMode.getIngredientImg(self, name)
 
-            self.displayInventory[i][0] = loadedImg 
+                self.displayInventory[i][0] = loadedImg 
 
 #        self.inventory[0][0] = CookingMode.getIngredientImg(self, 'potato')
 #        self.inventory[1][0] = CookingMode.getIngredientImg(self, 'milk')
@@ -1027,6 +1025,7 @@ class CookingMode(Mode):
         width = 20
         height = 70
         canvas.create_rectangle(self.miniGameRectX0, 470, self.miniGameRectX1, 470+height, outline = '', fill = 'deepskyblue2')
+        canvas.create_text(552, 565, text = 'Press u key for more of inventory', fill = 'white', anchor = 'e')
         """
         width = 2*self.bottomMargin/3
         length = self.width - self.margin - self.rightMargin
@@ -1063,7 +1062,6 @@ class CookingMode(Mode):
     def drawCell(self,canvas, row, col, color):
         x0, y0, x1, y1 = CookingMode.getIsoCellBounds(self, row, col)
         if (row, col) in self.applianceDict:
-            print('ur getting here')
             canvas.create_image((x0+x1)/2, (y0+y1)/2, ImageTk.PhotoImage(self.blendImg)
         #canvas.create_rectangle(x0, y0, x1, y1, fill = color
                                  )
@@ -1107,7 +1105,7 @@ class CookingMode(Mode):
             seconds = '00'
         elif seconds <10:
             seconds = '0' + str(seconds)
-        canvas.create_text(7* self.width/8, self.height/10, text = f'Time Left: {minutes}:{seconds}', font = "Verdana 12 bold", fill = 'white')
+        canvas.create_text(7* self.width/8, self.height/10, text = f'Time Left: {minutes}:{seconds}', fill = 'white')
 
     #this check is taken from example 10 of https://www.cs.cmu.edu/~112/notes/notes-animations-part1.html
     def pointInGrid(self, x, y):
@@ -1257,20 +1255,18 @@ class JudgingMode(Mode):
             playerNum = web.recipeScraper(self.playerIngredients)
             self.playerWebScore = JudgingMode.calculateWebscraping(self, playerNum)
             self.playerComplexityScore = JudgingMode.calculateComplexity(self, self.complexity, self.recipeCounter)
-            self.playerTotalScore = self.playerWebScore + self.playerComplexityScore + self.playerSkill
+            self.playerTotalScore = int(self.playerWebScore + self.playerComplexityScore + self.playerSkill)
             self.isPlayerCalculated = True
             #rint(self.gameAINum)
         elif event.key == 'p':
             gameAINum = web.recipeScraper(self.gameAIIngredients)
             self.gameAIWebScore = JudgingMode.calculateWebscraping(self, gameAINum)
             self.gameAIComplexityScore = JudgingMode.calculateComplexity(self, self.gameCookBookIndex+1, self.gameCookBookIndex+1) #every cookbook is guaranteed to be a recipe
-            self.gameAITotalScore = self.gameAIWebScore + self.gameAIComplexityScore + self.gameAISkill
+            self.gameAITotalScore = int(self.gameAIWebScore + self.gameAIComplexityScore + self.gameAISkill)
             self.isGameAICalculated = True
         elif event.key == 'w':
             self.isWinnerCalculated = True
-            print('ur getting here')
     def mousePressed(self, event):
-        print(event.x, event.y)
         if 91<=event.x<=520 and 499<=event.y<=540:
             self.app.setActiveMode(self.app.leaderboardMode)
         elif 361<=event.x<=517 and 499<=event.y<=540:
@@ -1278,8 +1274,9 @@ class JudgingMode(Mode):
     #function to calculate how many appliances were used, which level of cookbook its in 
     def calculateComplexity(self, complexity, recipeCounter):
         complexityScore = recipeCounter + complexity 
-        complexityScore = complexityScore // 8 #number of appliances + levels of cooksbooks 
+        complexityScore = complexityScore / 8 #number of appliances + levels of cooksbooks 
         complexityScore = complexityScore * 10 
+        complexityScore = complexityScore // 1
         return complexityScore
     def calculateWebscraping(self, num):
         #case where there are no recipes bc combo is so bizzarre
@@ -1331,7 +1328,7 @@ class JudgingMode(Mode):
         if self.isGameAICalculated and self.isPlayerCalculated:
             r = self.height//3
             canvas.create_rectangle(self.width/2 - r, self.height/2 - r, self.width/2 +r, self.height/2 +r, fill = 'white', outline = '')
-            canvas.create_text(self.width/2, self.height/2, text = 'SCORES TALLIED! PRESS "w" TO MOVE ON!', font = 'Verdana 15 bold')
+            canvas.create_text(self.width/2, self.height-20, text = 'SCORES TALLIED! PRESS "w" TO MOVE ON!', font = 'Verdana 15 bold')
         if self.isWinnerCalculated:
             JudgingMode.drawWin(self, canvas)
 
@@ -1349,6 +1346,7 @@ class LeaderboardMode(Mode):
         if event.key == 'r':
             self.app.logInMode.user = ''
             self.app.logInMode.password = '' #reset user and password 
+            
             self.app.setActiveMode(self.app.titleMode)
     def drawPlayerScore(self, canvas):
         i = self.height/15
@@ -1583,7 +1581,8 @@ class TitleMode(Mode):
         self.isHard = False
         
     def keyPressed(self, event):
-        return
+        if event.key == 'r':
+            TitleMode.appStarted(self)
         #if event.key == 'Space':
          #   self.app.setActiveMode(self.app.instructionsMode)
     def mousePressed(self, event):
@@ -1625,7 +1624,6 @@ class BasketMode(Mode):
         self.basketLoadedIngredients = list()
         BasketMode.loadBasketIngreds(self)
     def mousePressed(self, event):
-        print(event.x, event.y)
         if 187<=event.x<=407 and 504<=event.y<=572:
             self.app.setActiveMode(self.app.shoppingMode)
 
@@ -1677,34 +1675,43 @@ class LogInMode(Mode):
         self.isPass = False
         self.user = ''
         self.password = ''
+        self.logInOrRegister = 'login'
     def mousePressed(self, event):
         #check which box clicked
-        print(event.x, event.y)
         if 72<=event.x<=537 and 198<=event.y<=250: #mid y ~220
             self.isUser = True
         elif 72<=event.x<=537 and 330<=event.y<=386: #mid y ~360 
             self.isPass = True
+            
 
         if 91<=event.x<=278 and 499<=event.y<=540: 
             #check that this is a correct user pass
                 board = charInfo.passUser('userpass.txt')
                 for user, password in board.items():
                     if user==self.user and password == self.password:
-                        self.app.setActiveMode(self.app.profileMode)
+                        self.logInOrRegister = 'login'
+       
+                        self.app.setActiveMode(self.app.customizeMode)
+
                         break
 
                     else:
+                        self.logInOrRegister = 'register'
+
                         board = charInfo.updateLeaderboard('userpass.txt', self.user, self.password)
                         self.app.setActiveMode(self.app.customizeMode)
+                        
                         break
         elif 361<=event.x<=517 and 499<=event.y<=540:
+            self.logInOrRegister = 'register'
             #also add it to ur text file! says leaderboard but can be used for passwords as well
             if len(self.user)>0 and len(self.password)>0:
+                self.logInOrRegister = 'register'
                 board = charInfo.updateLeaderboard('userpass.txt', self.user, self.password)
                 self.app.setActiveMode(self.app.customizeMode)
 
     def keyPressed(self, event):
-        if event.key in 'abcdefghijklmnopqrstuvwxyz' or event.key in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ':
+        if event.key in 'abcdefghijklmnopqrstuvwxyz' or event.key in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' or event.key in '123456789':
             if self.isUser:
                 self.user = self.user + event.key
             elif self.isPass:
@@ -1715,7 +1722,6 @@ class LogInMode(Mode):
         elif event.key == 'Delete':
             if self.isUser and len(self.user)>0:
                 self.user = self.user[0:-1]
-                print(self.user)
             
             elif self.isPass and len(self.password)>0:
                 self.password = self.password[0:-1]
@@ -1726,7 +1732,6 @@ class LogInMode(Mode):
 
 class CustomizeMode(Mode):
     def appStarted(self):
-        print('getting here')
         self.combinationScreenPath = '/Users/az/Documents/GitHub/Chopped_Simulation/images/cookingscreen (8)/customize.png'
         self.imgCombinationScreen = self.loadImage(self.combinationScreenPath)
         self.user = self.app.logInMode.user
@@ -1735,7 +1740,7 @@ class CustomizeMode(Mode):
         self.scaleFactor = self.app.cookingMode.findScaleFactor(self.charImg, self.height//4)
         self.charImg = self.scaleImage(self.charImg, self.scaleFactor)
         self.originalCharImg = self.charImg
-        self.isCasual = False
+        
         self.hat = 'chef'
         self.hats = ['chef', 'santa', 'octopus', 'hat', 'stem']
         self.hatPaths = {'chef': '/Users/az/Documents/GitHub/Chopped_Simulation/images/chef.png', 
@@ -1757,6 +1762,18 @@ class CustomizeMode(Mode):
         #self.outfits = ['brown', 'red', 'pink', 'blue']
         self.dietaryList = list()
         self.isVegetarian, self.isNutFree, self.isVegan = False, False, False
+        CustomizeMode.existingProfile(self)
+        self.isCasual = False
+
+    def existingProfile(self):
+        self.recipesMade = charInfo.passUser('savedRecipes.txt') #should return dict
+        self.recipes = ''
+        self.isExisting = False
+        for person, recipes in self.recipesMade.items():
+            if person == self.app.logInMode.user:
+                self.recipes = recipes
+                self.isExisting = True
+        
     #CITATION: https://www.google.com/search?q=image.paste+python&oq=image.paste+python&aqs=chrome.0.0i457j0i22i30l7.3209j0j4&sourceid=chrome&ie=UTF-8 
     #referenced for usage of pil 
     def combineCharImg(self, sprite, hat):
@@ -1764,17 +1781,12 @@ class CustomizeMode(Mode):
         updatedChar.paste(sprite, (0,0))
         updatedChar.paste(hat, (0, 0), hat.convert('RGBA'))
         return updatedChar
-    def keyPressed(self, event):
-        if event.key == 'n':
-            self.app.setActiveMode(self.app.instructionsMode)
     def mousePressed(self, event):
-        print(event.x, event.y)
         #click hat
         if 61<=event.x<=182 and 146<=event.y<=158: 
             self.hats = self.hats[1:] + [self.hats[0]]
             self.hat = self.hats[0]
             #reset character image everything this is clicked with the new hat 
-            print(self.hats)
             hatToLoad = self.hatLoadedImgs[self.hat]
             self.charImg = CustomizeMode.combineCharImg(self, self.originalCharImg, hatToLoad)
             
@@ -1799,23 +1811,28 @@ class CustomizeMode(Mode):
         #click clothes
         #click purple buttons
         if 91<=event.x<=200 and 499<=event.y<=540: 
+            print('LEFT BUTTON')
+            self.isCasual = False
             self.app.setActiveMode(self.app.instructionsMode)
         elif 361<=event.x<=517 and 499<=event.y<=540:
             self.isCasual = True
+            print('RIGHT BUTTON')
             self.app.setActiveMode(self.app.instructionsMode)
+            
 
     def redrawAll(self, canvas):
         canvas.create_image(self.width/2, self.height/2, image = ImageTk.PhotoImage(self.imgCombinationScreen))
         canvas.create_image(2*self.width/3, self.height/2.7, image = ImageTk.PhotoImage(self.charImg))
-        canvas.create_text(2*self.width/3, self.height/1.73, font = 'Verdana 20 bold', text=f'{self.user}'.upper(), fill = 'white')
-        
+        canvas.create_text(self.width/2, self.height/3.7, font = 'Verdana 20 bold', text=f'{self.user}'.upper(), fill = 'white')
+        if self.isExisting:
+            canvas.create_text(self.width/4.3, self.height/3, font = 'Verdana 13 bold', text=f'Recipes made: {self.recipes}', fill = 'white')
         if self.isVegetarian:
             canvas.create_line(60, 454, 178 ,454, fill = 'white')
         if self.isNutFree:
             canvas.create_line(246, 454, 328 ,454, fill = 'white')
         if self.isVegan:
             canvas.create_line(416, 454, 478 ,454, fill = 'white')
-
+"""
 class ProfileMode(Mode):
     def appStarted(self):
         self.combinationScreenPath = '/Users/az/Documents/GitHub/Chopped_Simulation/images/characterprofile.png'
@@ -1823,48 +1840,64 @@ class ProfileMode(Mode):
         self.recipesMade = charInfo.passUser('savedRecipes.txt') #should return dict
         self.recipes = ''
         for person, recipes in self.recipesMade.items():
-            print(person)
             if person == self.app.logInMode.user:
-                print('sucess!!')
                 self.recipes = recipes
-        self.isCasual = False
-    def mousePressed(self, event):
-        if 91<=event.x<=200 and 499<=event.y<=540: 
-            self.app.setActiveMode(self.app.instructionsMode)
-        elif 361<=event.x<=517 and 499<=event.y<=540:
-            self.isCasual = True
-            self.app.setActiveMode(self.app.instructionsMode)
 
-    def keyPressed(self, event):
-        if event.key == 'n':
-            self.app.setActiveMode(self.app.instructionsMode)
+    def mousePressed(self, event):
+        print('profie')
+        print(event.x, event.y)
+        if 91<=event.x<=200 and 499<=event.y<=540: 
+            self.app.titleMode.isCasual = False
+            self.app.setActiveMode(self.app.instructionsModeCompetition)
+        elif 361<=event.x<=517 and 499<=event.y<=540:
+            self.app.titleMode.isCasual = True
+            print('profilemode')
+            print(self.app.titleMode.isCasual)
+            self.app.setActiveMode(self.app.instructionsModeCasual)
 
     def redrawAll(self, canvas):
         canvas.create_image(self.width/2, self.height/2, image = ImageTk.PhotoImage(self.imgCombinationScreen))
         canvas.create_text(self.width/2, self.height/6, text = 'YOUR PROFILE', font = 'Verdana 30 bold', fill = 'white')
         canvas.create_text(self.width/2, self.height/3.5, text = f'{self.app.logInMode.user}', font = 'Verdana 20 bold', fill = 'white')
         canvas.create_text(self.width/10, self.height/2.5, text = f'{self.recipes}', font = 'Verdana 15 bold', fill = 'white', anchor = 'w')
+"""
 class InstructionsMode(Mode):
+    def modeActivated(self):
+        InstructionsMode.appStarted(self)
     def appStarted(self):
-        try:
-            if (self.app.customizeMode.isCasual):
-                self.instructionsPath = '/Users/az/Documents/GitHub/Chopped_Simulation/images/casualMode.png'
-            else: 
+        self.isCasual = self.app.customizeMode.isCasual
+
+        print(self.isCasual)
+        if not self.isCasual:
                 
-                self.instructionsPath = '/Users/az/Documents/GitHub/Chopped_Simulation/images/instructions.png'
-        except: #default catchall
-            if self.app.profileMode.isCasual:
-
-                self.instructionsPath = '/Users/az/Documents/GitHub/Chopped_Simulation/images/casualMode.png'
-            else:
-                self.instructionsPath = '/Users/az/Documents/GitHub/Chopped_Simulation/images/instructions.png'
-
+            self.instructionsPath = '/Users/az/Documents/GitHub/Chopped_Simulation/images/instructions.png'
+        else:
+            self.instructionsPath = '/Users/az/Documents/GitHub/Chopped_Simulation/images/casualmode.png'
         self.instructions = self.loadImage(self.instructionsPath)
     def mousePressed(self, event):
-        print(event.x, event.y)
+        
+        #self.isCasual = self.app.customizeMode.isCasual
+        #if not self.isCasual:
+            
+        #    self.instructionsPath = '/Users/az/Documents/GitHub/Chopped_Simulation/images/instructions.png'
+        #else:
+        #    self.instructionsPath = '/Users/az/Documents/GitHub/Chopped_Simulation/images/casualmode.png'
+        
+        #self.instructions = self.loadImage(self.instructionsPath)
+        #print(event.x, event.y)
+        if 0<event.x<self.height:
+            InstructionsMode.appStarted(self)
         if 187<=event.x<=407 and 504<=event.y<=572:
             self.app.setActiveMode(self.app.basketMode)
-
+        #print(self.isCasual)
+    def setUpInstructions(self, instructionsPath):
+        isCasual = self.app.customizeMode.isCasual
+        if isCasual:
+            instructionsPath = '/Users/az/Documents/GitHub/Chopped_Simulation/images/instructions.png'
+        else:
+            instructionsPath = '/Users/az/Documents/GitHub/Chopped_Simulation/images/casualmode.png'
+        instructions = self.loadImage(instructionsPath)
+        return instructions
     def redrawAll(self, canvas):
         canvas.create_image(self.width/2, self.height/2, image = ImageTk.PhotoImage(self.instructions))
 #leader board
@@ -1879,10 +1912,10 @@ class MyModalApp(ModalApp):
         app.judgingMode = JudgingMode()
         app.basketMode = BasketMode()
         app.instructionsMode = InstructionsMode()
+
         app.leaderboardMode = LeaderboardMode()
         app.logInMode = LogInMode()
         app.customizeMode = CustomizeMode()
-        app.profileMode = ProfileMode()
         app.setActiveMode(app.titleMode)
 
         #app.timerDelay = 500

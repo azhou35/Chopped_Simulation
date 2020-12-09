@@ -1,4 +1,6 @@
-#function to set up leaderboad
+#whole file is post-mvp leaderboard, login info, and recipeSaved information
+#function to set up leaderboard
+#CITATION: FILE FUNCTIONS FROM https://www.geeksforgeeks.org/reading-writing-text-files-python/
 def leaderboard(file):
     board = dict()
     f = open(file, 'r')
@@ -17,7 +19,8 @@ def leaderboard(file):
                     name = name + char
         if not name=='':
             board[name] = num
-    return board #return dictionary board
+    return board #return dictionary of person: score
+
 #https://www.kite.com/python/answers/how-to-edit-a-file-in-python file function documentation
 #function to set up passuser
 def passUser(file):
@@ -42,11 +45,9 @@ def passUser(file):
 
         if not user=='':
             login[user] = password
-    return login #return dictionary board
-#https://www.kite.com/python/answers/how-to-edit-a-file-in-python file function documentation
+    return login #return login board of pass:user
 
-#print(leaderboard('leaderboard.txt'))   
-#update leaderboard dict given ur curent core
+#update leaderboard dict given ur curent score
 def updateLeaderboard(file, currentUser, currentScore): #boad is a dict
     board = leaderboard(file)
     board[currentUser] = currentScore 
@@ -55,17 +56,17 @@ def updateLeaderboard(file, currentUser, currentScore): #boad is a dict
     updatedFile.close() 
     return board
 
-
+#return sorted leaderboard list given a dictionary 
 def sortLeaderboard(file, board):
     boardList = list()
     for item, value in board.items():
         if not (isinstance(value, int)):
             board[item] = 30 #default number to avoid bugs
         boardList.append(value)
-        print(value)
-        print(type(value))
     boardList.sort(reverse = True)
     return boardList
+#CITATION: https://www.kite.com/python/answers/how-to-edit-a-file-in-python referenced to overwrite files to add recipes 
+#function to add current created dish to current User's list of overal recipes created
 def addRecipe(file, curruser, finalDish):
     f = open(file, 'r')
     listOfStrings = f.readlines()
@@ -95,7 +96,6 @@ def addRecipe(file, curruser, finalDish):
             recipe = recipe + f', {finalDish} ' #string of all the lists
             lineText = f'{curruser}:{recipe}'
             lineToChange = linecounter
-            print(line)
 
         linecounter+=1 
     listOfStrings[lineToChange] = lineText + '\n'
@@ -105,4 +105,3 @@ def addRecipe(file, curruser, finalDish):
     f.close() 
 
     readFile = open(file)
-    print(readFile.read())

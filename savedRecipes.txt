@@ -1,4 +1,4 @@
-Emma: mashedPotato
-Stepho:strawberrySauce,toast,tomatoSauce,,  
-Mona:cake,  
+
+Stepho:strawberrySauce,,,,,,,,,,,,,,,,,,,,,,,,  
+Mona: cake
 Allen: potato, potato + egg, pancake

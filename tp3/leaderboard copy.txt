@@ -1,0 +1,6 @@
+Emma: 70
+Stepho: 50 
+Mona: 45 
+Allen: 25
+Annie: 23 
+Stepho: 0 

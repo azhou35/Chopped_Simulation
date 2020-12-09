@@ -318,7 +318,6 @@ class gameAI(Player):
                 if index == 0: 
                     for baseIngred in recipe[0]:
                         self.groceries.add(baseIngred)
-        print(self.groceries)
     #def generateGroceries(self):
 
 
