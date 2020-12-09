@@ -1,4 +1,0 @@
-Emma: 70, none, chef
-Stepho: 50, none, bunny
-Mona: 45, vegetarian, santa
-Allen: 25, nut-free, carrot

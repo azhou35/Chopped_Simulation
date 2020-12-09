@@ -1,0 +1,26 @@
+IMG SOURCES:
+
+
+Player game sprites: Annie Zhou, created with Procreate using IPad
+Cover image = "Cook Kitchen Chef Cooker Cooking Icon" by photo3idea
+Chef hat: Annie Zhou, created with Procreate using IPad
+Octopus hat: Annie Zhou, created with AdobeXD using Macbook
+Stem hat: Annie Zhou, created with AdobeXD using Macbook
+Straw hat: "Beach Hat of Man" from grmarc 
+Santa Hat: "santas hat" from Roundicons Pro
+Lose image: "Man Showing Loser with Sign Fingers Head" by MaryValery
+Winner: "Winner with Trophy" by liliakyrylenko
+Cookbook: open book by DAPA images
+Whisk: Bowl whisk by vectorwin
+Plate: Plate by icons8
+Saute = "Saute Cooking Pan" by smallike
+Oven = "Oven" by smallike
+Blender = "Isolated Blender" by iconsy
+Isometric kitchen appliances = https://image.freepik.com/free-vector/kitchen-equipment-isometric-set_1284-24576.jpg
+Isometric kitchen = https://assets.materialup.com/uploads/2298c5ea-1ba3-488d-9cc1-6dba8d0dd755/preview.jpg
+OpenCookbook = "Recipe book line and fill style" by justicon
+Title screen, instructions screen, basket screen, kitchen screen, appliance screen, judging screen, login screen, customize screen, winner screen, loser screen: Annie Zhou, created with Procreate using IPad (linked here: https://www.canva.com/design/DAEPj0yjwCE/share/preview?token=HatXrdlkyxuTlAzVlZEKZA&role=EDITOR&utm_content=DAEPj0yjwCE&utm_campaign=designshare&utm_medium=link&utm_source=sharebutton_
+
+Ingredient icons: https://icons8.com/icon/pack/food/color
+
+Game AI sprites: https://image.slidesharecdn.com/ww2rtsgameinhtml5-131015125425-phpapp02/95/html5-bug-25d-rts-game-in-html5-by-dawid-lijewski-22-638.jpg?cb=1381841723
